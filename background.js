@@ -126,7 +126,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   );
 });
 
-// 生成形如 0x_abc123@test.com 的邮箱（6 位随机字母数字）
+// 生成形如 0x_abc123@qq.com 的邮箱（6 位随机字母数字）
 function generateRandomEmail() {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let rand = "";
@@ -134,7 +134,7 @@ function generateRandomEmail() {
     const idx = Math.floor(Math.random() * chars.length);
     rand += chars[idx];
   }
-  return `0x_${rand}@test.com`;
+  return `0x_${rand}@qq.com`;
 }
 
 // 生成随机英文句子（指定长度）
