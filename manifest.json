@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "0xFill - 快速填充",
+  "short_name": "0xFill",
+  "version": "1.0.0",
+  "description": "在网页输入框中通过右键菜单快速填充多国测试号码和随机测试邮箱。",
+  "icons": {
+      "48": "icons/icon-48.png"
+  },
+  "action": {
+    "default_title": "0xFill",
+    "default_icon": {
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "permissions": [
+    "contextMenus",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
+
+
