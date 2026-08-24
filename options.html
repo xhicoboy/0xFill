@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>0xFill Settings</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true"></div>
+  <main class="page">
+    <header class="header">
+      <div class="brand">
+        <img class="logo" src="icons/icon-48.png" alt="0xFill" width="40" height="40" />
+        <div class="brand-copy">
+          <div class="brand-row">
+            <h1>0xFill</h1>
+            <span class="badge" data-i18n="badge">Settings</span>
+          </div>
+          <p class="subtitle" data-i18n="subtitle">Test data generated locally · Nothing is uploaded</p>
+        </div>
+      </div>
+
+      <div class="language-selector">
+        <label for="language" data-i18n="languageLabel">Language</label>
+        <select id="language" aria-label="Language">
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+        </select>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="section-head">
+        <span class="index">01</span>
+        <div>
+          <h2 data-i18n="emailTitle">Random email</h2>
+          <p class="hint" data-i18n="emailHint">Prefix + 6 random characters + @domain</p>
+        </div>
+      </div>
+      <div class="email-grid">
+        <div class="field">
+          <label for="emailPrefix" data-i18n="prefix">Prefix</label>
+          <input id="emailPrefix" type="text" maxlength="32" placeholder="0x_" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="emailDomain" data-i18n="domain">Domain</label>
+          <input id="emailDomain" type="text" maxlength="64" placeholder="text.com" autocomplete="off" />
+        </div>
+      </div>
+      <p class="preview" id="emailPreview">Preview: 0x_abc123@text.com</p>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <span class="index">02</span>
+        <div>
+          <h2 data-i18n="snippetsTitle">Custom snippets</h2>
+          <p class="hint" data-i18n="snippetsHint">Supports up to three levels. Select a group to expand and edit it.</p>
+        </div>
+      </div>
+
+      <div class="add-form">
+        <div class="field">
+          <label for="snippetTitle" data-i18n="parentMenuName">Parent menu name</label>
+          <input id="snippetTitle" type="text" maxlength="64" data-i18n-placeholder="parentMenuPlaceholder" placeholder="e.g. Test accounts" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="snippetValue" data-i18n="childItemsOptional">Child items (optional, one per line)</label>
+          <textarea id="snippetValue" maxlength="4000" rows="3" placeholder="alice@test.com&#10;bob@test.com"></textarea>
+        </div>
+        <div class="composer-block">
+          <div class="composer-head">
+            <div>
+              <h3 data-i18n="submenus">Submenus</h3>
+              <p class="hint" data-i18n="submenuComposerHint">Add submenus now without saving the parent menu first.</p>
+            </div>
+            <button id="addSubmenuDraftBtn" type="button" class="btn secondary" data-i18n="addAnotherSubmenu">Add another submenu</button>
+          </div>
+          <div id="submenuDraftList" class="submenu-draft-list"></div>
+        </div>
+        <button id="addSnippetBtn" type="button" class="btn primary" data-i18n="add">Add</button>
+      </div>
+
+      <ul id="snippetList" class="snippet-list"></ul>
+      <p id="emptySnippets" class="empty" data-i18n="emptySnippets">No custom snippets yet</p>
+    </section>
+
+    <section class="card muted">
+      <div class="section-head">
+        <span class="index">03</span>
+        <div>
+          <h2 data-i18n="howToUse">How to use</h2>
+          <p class="hint" data-i18n="howToUseHint">Fill data from the context menu without leaving the page.</p>
+        </div>
+      </div>
+      <ol class="tips">
+        <li data-i18n="tip1">Right-click anywhere on a page and select “0xFill - Quick Fill.”</li>
+        <li data-i18n="tip2">“One Click Fill” finds the form near where you right-clicked and skips passwords, verification codes, and card numbers.</li>
+        <li data-i18n="tip3">Email addresses and phone numbers replace the entire field by default; selected text is replaced instead.</li>
+        <li data-i18n="tip4">Random text is inserted at the cursor without clearing the field.</li>
+        <li data-i18n="tip5">Custom menus support up to three levels: parent menu → child item or submenu → nested item.</li>
+        <li data-i18n="tip6">Click the extension icon anytime to open this settings page.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="footer-note" data-i18n="footerNote">Save your changes to sync them with the context menu.</span>
+      <div class="footer-actions">
+        <span id="status" class="status" aria-live="polite"></span>
+        <button id="saveBtn" type="button" class="btn primary" data-i18n="saveSettings">Save settings</button>
+      </div>
+    </div>
+  </footer>
+
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,139 +1,528 @@
-// content.js - 负责记录用户右键/聚焦的输入框，并在收到后台消息时将文本插入到该输入框中
+// content.js - 单字段填充 + 一键填充当前表单（兼容 React/Vue）
 
-let lastEditableElement = null;
+if (!window.__oxfillInitialized) {
+  window.__oxfillInitialized = true;
 
-// 判断一个元素是否为我们关心的可编辑元素（input/textarea 或 contenteditable）
-function isEditableElement(el) {
-  if (!el) return false;
-  if (el.disabled || el.readOnly) return false;
+  let lastEditableElement = null;
+  let lastContextTarget = null;
+  // 仅在本 frame 刚触发过右键菜单时允许填充，避免广播到 iframe 时误填其他 frame
+  let fillArmed = false;
 
-  const tag = (el.tagName || "").toLowerCase();
-  if (tag === "input" || tag === "textarea") {
-    return true;
+  const SKIP_TYPE = new Set([
+    "button",
+    "checkbox",
+    "color",
+    "file",
+    "hidden",
+    "image",
+    "radio",
+    "range",
+    "reset",
+    "submit",
+    "password"
+  ]);
+
+  const SKIP_HINT =
+    /password|passwd|pwd|captcha|recaptcha|hcaptcha|verifycode|verification|otp|2fa|mfa|authcode|sms.?code|email.?code|cvv|cvc|csc|card.?number|credit.?card|debit.?card|pan\b|ssn|social.?security|身份证|验证码|密码|信用卡|银行卡/i;
+
+  function isEditableElement(el) {
+    if (!el || !el.isConnected) return false;
+    if (el.disabled || el.readOnly) return false;
+
+    const tag = (el.tagName || "").toLowerCase();
+    if (tag === "textarea") return true;
+    if (tag === "input") {
+      const type = (el.type || "text").toLowerCase();
+      return !SKIP_TYPE.has(type);
+    }
+
+    return Boolean(el.isContentEditable);
   }
 
-  if (el.isContentEditable) {
-    return true;
-  }
-
-  return false;
-}
-
-// 监听 focus，记录最近一次获得焦点的可编辑元素
-document.addEventListener(
-  "focus",
-  (event) => {
+  function resolveEditableFromEvent(event) {
+    const path = typeof event.composedPath === "function" ? event.composedPath() : [];
+    for (const node of path) {
+      if (isEditableElement(node)) return node;
+    }
     const target = event.target;
-    if (isEditableElement(target)) {
-      lastEditableElement = target;
+    if (isEditableElement(target)) return target;
+    if (target && typeof target.closest === "function") {
+      const closest = target.closest(
+        "input, textarea, [contenteditable=''], [contenteditable='true']"
+      );
+      if (isEditableElement(closest)) return closest;
     }
-  },
-  true // 使用捕获阶段，能更早捕获到事件
-);
-
-// 监听 contextmenu（右键菜单弹出前），记录最近一次在其上右键的可编辑元素
-document.addEventListener(
-  "contextmenu",
-  (event) => {
-    const target = event.target;
-    if (isEditableElement(target)) {
-      lastEditableElement = target;
-    }
-  },
-  true
-);
-
-// 处理来自 background.js 的填充消息
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (!message || message.type !== "fillText") {
-    return;
+    return null;
   }
 
-  const text = String(message.text ?? "");
-  const insertMode = message.insertMode === true;  // 是否为插入模式
+  document.addEventListener(
+    "focusin",
+    (event) => {
+      const el = resolveEditableFromEvent(event);
+      if (el) lastEditableElement = el;
+    },
+    true
+  );
 
-  // 优先使用我们记录的 lastEditableElement，其次尝试使用 document.activeElement
-  let el = lastEditableElement || document.activeElement;
-  if (!isEditableElement(el)) {
-    return;
-  }
-
-  const tag = (el.tagName || "").toLowerCase();
-
-  if (tag === "input" || tag === "textarea") {
-    insertTextIntoInputOrTextarea(el, text, insertMode);
-  } else if (el.isContentEditable) {
-    insertTextIntoContentEditable(el, text, insertMode);
-  }
-});
-
-// 在 input/textarea 中填充文本
-// insertMode: true 表示插入模式（不覆盖原有内容），false 表示覆盖模式
-function insertTextIntoInputOrTextarea(el, text, insertMode = false) {
-  const value = el.value || "";
-
-  if (insertMode) {
-    // 插入模式：在光标位置插入文本，如果没有光标则在末尾追加
-    const start = typeof el.selectionStart === "number" ? el.selectionStart : value.length;
-    const end = typeof el.selectionEnd === "number" ? el.selectionEnd : value.length;
-
-    const before = value.slice(0, start);
-    const after = value.slice(end);
-
-    el.value = before + text + after;
-
-    // 设置光标位置到插入文本之后
-    const newCursorPos = start + text.length;
-    try {
-      el.setSelectionRange(newCursorPos, newCursorPos);
-    } catch (e) {
-      // 某些类型 input 可能不支持 selectionRange，忽略即可
+  function resolveEventTarget(event) {
+    const path = typeof event.composedPath === "function" ? event.composedPath() : [];
+    for (const node of path) {
+      if (node && node.nodeType === 1) return node;
     }
-  } else {
-    // 覆盖模式：直接覆盖整个内容
-    el.value = text;
-    
-    // 设置光标位置到文本末尾
-    const newCursorPos = text.length;
-    try {
-      el.setSelectionRange(newCursorPos, newCursorPos);
-    } catch (e) {
-      // 某些类型 input 可能不支持 selectionRange，忽略即可
-    }
+    return event.target && event.target.nodeType === 1 ? event.target : null;
   }
 
-  // 触发 input 事件，以便页面上的框架/监听器可以感知到值的变化
-  el.dispatchEvent(new Event("input", { bubbles: true }));
-  el.dispatchEvent(new Event("change", { bubbles: true }));
-}
+  document.addEventListener(
+    "contextmenu",
+    (event) => {
+      fillArmed = true;
+      lastContextTarget = resolveEventTarget(event);
+      const el = resolveEditableFromEvent(event);
+      if (el) lastEditableElement = el;
+    },
+    true
+  );
 
-// 在 contenteditable 元素中填充文本
-// insertMode: true 表示插入模式（不覆盖原有内容），false 表示覆盖模式
-function insertTextIntoContentEditable(el, text, insertMode = false) {
-  el.focus();
+  chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    if (!message || !message.type) return;
 
-  if (insertMode) {
-    // 插入模式：在光标处插入文本
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) {
-      // 如果没有光标，在末尾追加
-      el.innerText += text;
+    if (message.type === "fillText") {
+      const text = String(message.text ?? "");
+      const insertMode = message.insertMode === true;
+      const el = takeArmedEditable();
+      if (!el) {
+        showToast("0xFill: Click an input field first, or choose “One Click Fill” from the context menu.");
+        sendResponse({ ok: false });
+        return;
+      }
+      fillElement(el, text, insertMode);
+      sendResponse({ ok: true });
+      return;
+    }
+
+    if (message.type === "fillForm") {
+      if (!fillArmed) {
+        sendResponse({ ok: false });
+        return;
+      }
+      fillArmed = false;
+
+      const anchor =
+        (lastContextTarget && lastContextTarget.isConnected && lastContextTarget) ||
+        (isEditableElement(lastEditableElement) && lastEditableElement) ||
+        (isEditableElement(document.activeElement) && document.activeElement) ||
+        document.body;
+
+      const result = fillCurrentForm(anchor, message.kit || {});
+      const filledLabel = `${result.filled} ${result.filled === 1 ? "field" : "fields"}`;
+      const skippedLabel = `${result.skipped} ${result.skipped === 1 ? "field" : "fields"}`;
+      showToast(`0xFill: Filled ${filledLabel}; skipped ${skippedLabel}.`);
+      sendResponse({ ok: true, ...result });
+    }
+  });
+
+  function takeArmedEditable() {
+    let el = null;
+    if (fillArmed && isEditableElement(lastEditableElement)) {
+      el = lastEditableElement;
+    } else if (isEditableElement(document.activeElement)) {
+      el = document.activeElement;
+    }
+    fillArmed = false;
+    return el;
+  }
+
+  function setNativeValue(el, value) {
+    const proto =
+      el.tagName.toLowerCase() === "textarea"
+        ? HTMLTextAreaElement.prototype
+        : HTMLInputElement.prototype;
+    const descriptor = Object.getOwnPropertyDescriptor(proto, "value");
+    if (descriptor && descriptor.set) {
+      descriptor.set.call(el, value);
     } else {
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-      range.insertNode(document.createTextNode(text));
-      // 将光标移动到插入文本之后
-      range.collapse(false);
-      selection.removeAllRanges();
-      selection.addRange(range);
+      el.value = value;
     }
-  } else {
-    // 覆盖模式：直接覆盖整个内容
-    el.innerText = text;
   }
 
-  // 触发 input 事件
-  el.dispatchEvent(new Event("input", { bubbles: true }));
+  function dispatchInputEvents(el) {
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+    try {
+      el.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText" }));
+    } catch (_e) {
+      // 旧环境可能不支持 InputEvent
+    }
+    el.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  function fillElement(el, text, insertMode = false) {
+    const tag = (el.tagName || "").toLowerCase();
+    if (tag === "input" || tag === "textarea") {
+      insertTextIntoInputOrTextarea(el, text, insertMode);
+    } else if (el.isContentEditable) {
+      insertTextIntoContentEditable(el, text, insertMode);
+    } else if (tag === "select") {
+      fillSelect(el, text);
+    }
+  }
+
+  // insertMode: true = 在光标/选区处插入；false = 有选区则替换选区，否则整框覆盖
+  function insertTextIntoInputOrTextarea(el, text, insertMode = false) {
+    el.focus();
+
+    const value = el.value || "";
+    let start = typeof el.selectionStart === "number" ? el.selectionStart : value.length;
+    let end = typeof el.selectionEnd === "number" ? el.selectionEnd : value.length;
+    const hasSelection = start !== end;
+
+    if (!insertMode && !hasSelection) {
+      start = 0;
+      end = value.length;
+    }
+
+    const nextValue = value.slice(0, start) + text + value.slice(end);
+    setNativeValue(el, nextValue);
+
+    const cursor = start + text.length;
+    try {
+      el.setSelectionRange(cursor, cursor);
+    } catch (_e) {
+      // number/email 等类型可能不支持 selectionRange
+    }
+
+    dispatchInputEvents(el);
+  }
+
+  function insertTextIntoContentEditable(el, text, insertMode = false) {
+    el.focus();
+
+    const selection = window.getSelection();
+    const hasRange = selection && selection.rangeCount > 0;
+    const range = hasRange ? selection.getRangeAt(0) : null;
+    const hasSelection = Boolean(range && !range.collapsed);
+
+    if (!insertMode && !hasSelection) {
+      el.textContent = text;
+      dispatchInputEvents(el);
+      return;
+    }
+
+    if (!range) {
+      el.appendChild(document.createTextNode(text));
+      dispatchInputEvents(el);
+      return;
+    }
+
+    range.deleteContents();
+    const node = document.createTextNode(text);
+    range.insertNode(node);
+    range.setStartAfter(node);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    dispatchInputEvents(el);
+  }
+
+  function fillSelect(el, preferred) {
+    const options = Array.from(el.options || []);
+    if (!options.length) return false;
+
+    let match = null;
+    if (preferred) {
+      const needle = String(preferred).toLowerCase();
+      match = options.find(
+        (opt) =>
+          !opt.disabled &&
+          (String(opt.value).toLowerCase() === needle ||
+            String(opt.text).toLowerCase().includes(needle))
+      );
+    }
+    if (!match) {
+      match = options.find((opt) => !opt.disabled && String(opt.value).trim() !== "");
+    }
+    if (!match) match = options.find((opt) => !opt.disabled) || options[0];
+
+    el.value = match.value;
+    dispatchInputEvents(el);
+    return true;
+  }
+
+  function isVisible(el) {
+    if (!el || !el.isConnected) return false;
+    const style = window.getComputedStyle(el);
+    if (style.display === "none" || style.visibility === "hidden" || style.opacity === "0") {
+      return false;
+    }
+    const rect = el.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  }
+
+  function getLabelText(el) {
+    if (el.id) {
+      const byFor = document.querySelector(`label[for="${cssEscape(el.id)}"]`);
+      if (byFor) return byFor.textContent || "";
+    }
+    const wrapped = el.closest("label");
+    if (wrapped) return wrapped.textContent || "";
+    return el.getAttribute("aria-label") || "";
+  }
+
+  function cssEscape(value) {
+    if (window.CSS && typeof window.CSS.escape === "function") {
+      return window.CSS.escape(value);
+    }
+    return String(value).replace(/["\\]/g, "\\$&");
+  }
+
+  function getFieldHint(el) {
+    return [
+      el.getAttribute("autocomplete") || "",
+      el.getAttribute("name") || "",
+      el.getAttribute("id") || "",
+      el.getAttribute("placeholder") || "",
+      el.getAttribute("aria-label") || "",
+      el.className || "",
+      getLabelText(el)
+    ]
+      .join(" ")
+      .toLowerCase();
+  }
+
+  function isSupportedField(el) {
+    if (!el || !el.isConnected || el.disabled || el.readOnly) return false;
+
+    const tag = (el.tagName || "").toLowerCase();
+    if (tag === "textarea" || tag === "select") return true;
+    if (tag === "input") {
+      const type = (el.type || "text").toLowerCase();
+      if (type === "hidden" || type === "button" || type === "submit" || type === "reset" || type === "image" || type === "file" || type === "color" || type === "range") {
+        return false;
+      }
+      return true;
+    }
+    return Boolean(el.isContentEditable);
+  }
+
+  function isSensitiveField(el) {
+    const tag = (el.tagName || "").toLowerCase();
+    if (tag === "input") {
+      const type = (el.type || "text").toLowerCase();
+      if (type === "password" || type === "checkbox" || type === "radio") return true;
+    }
+    return SKIP_HINT.test(getFieldHint(el));
+  }
+
+  function classifyField(el) {
+    const tag = (el.tagName || "").toLowerCase();
+    const type = tag === "input" ? (el.type || "text").toLowerCase() : tag;
+    const hint = getFieldHint(el);
+    const ac = (el.getAttribute("autocomplete") || "").toLowerCase();
+
+    if (type === "email" || ac.includes("email") || /e-?mail|邮箱|邮件/.test(hint)) {
+      return "email";
+    }
+    if (
+      type === "tel" ||
+      ac.includes("tel") ||
+      /phone|mobile|cellphone|tel\b|电话|手机|手机号/.test(hint)
+    ) {
+      return "phone";
+    }
+    if (type === "url" || ac.includes("url") || /website|homepage|url|网站|主页/.test(hint)) {
+      return "url";
+    }
+    if (type === "date" || type === "month" || /birthday|birth|日期|生日/.test(hint)) {
+      return type === "month" ? "month" : "date";
+    }
+    if (type === "datetime-local" || type === "time") {
+      return type === "time" ? "time" : "datetime";
+    }
+    if (type === "number" || type === "range") {
+      return "number";
+    }
+    if (
+      ac === "given-name" ||
+      ac === "fname" ||
+      /first.?name|given.?name|名(?!字)|firstname/.test(hint)
+    ) {
+      return "firstName";
+    }
+    if (ac === "family-name" || /last.?name|family.?name|surname|姓/.test(hint)) {
+      return "lastName";
+    }
+    if (ac === "name" || /full.?name|real.?name|姓名|名字|用户名(?!.*邮箱)/.test(hint)) {
+      if (/user.?name|login|account|账号|用户名/.test(hint) && !/姓名|名字|full.?name/.test(hint)) {
+        return "username";
+      }
+      return "fullName";
+    }
+    if (/user.?name|login.?name|account|账号|用户名/.test(hint)) {
+      return "username";
+    }
+    if (ac.includes("organization") || /company|organization|corp|公司|企业/.test(hint)) {
+      return "company";
+    }
+    if (
+      ac.includes("address-line") ||
+      ac === "street-address" ||
+      /address|street|地址|街道/.test(hint)
+    ) {
+      return "address";
+    }
+    if (ac.includes("address-level2") || /city|城市|市/.test(hint)) {
+      return "city";
+    }
+    if (ac.includes("address-level1") || /state|province|province|州|省/.test(hint)) {
+      return "state";
+    }
+    if (ac.includes("postal-code") || /zip|postal|邮编/.test(hint)) {
+      return "zip";
+    }
+    if (ac.includes("country") || /country|国家/.test(hint)) {
+      return "country";
+    }
+    if (tag === "textarea" || /message|comment|remark|描述|备注|留言|简介/.test(hint)) {
+      return "longText";
+    }
+    if (tag === "select") {
+      return "select";
+    }
+    return "shortText";
+  }
+
+  function valueForKind(kind, kit) {
+    switch (kind) {
+      case "email":
+        return kit.email || "";
+      case "phone":
+        return kit.phone || "";
+      case "url":
+        return kit.url || "https://example.com";
+      case "date":
+        return kit.date || "";
+      case "month":
+        return kit.month || "";
+      case "datetime":
+        return kit.datetime || "";
+      case "time":
+        return kit.time || "10:30";
+      case "number":
+        return kit.number || "42";
+      case "firstName":
+        return kit.firstName || "Alex";
+      case "lastName":
+        return kit.lastName || "Tester";
+      case "fullName":
+        return kit.fullName || "Alex Tester";
+      case "username":
+        return kit.username || "oxfill_user";
+      case "company":
+        return kit.company || "0xFill Test Co";
+      case "address":
+        return kit.address || "123 Test Street";
+      case "city":
+        return kit.city || "Testville";
+      case "state":
+        return kit.state || "CA";
+      case "zip":
+        return kit.zip || "90210";
+      case "country":
+        return kit.country || "US";
+      case "longText":
+        return kit.longText || "This is sample text generated by 0xFill for form testing.";
+      case "select":
+        return kit.country || "US";
+      case "shortText":
+      default:
+        return kit.shortText || "Test data";
+    }
+  }
+
+  function collectCandidates(root) {
+    const list = root.querySelectorAll("input, textarea, select, [contenteditable=''], [contenteditable='true']");
+    return Array.from(list);
+  }
+
+  function resolveFormRoot(anchor) {
+    if (anchor && typeof anchor.closest === "function") {
+      const form = anchor.closest("form");
+      if (form) return form;
+
+      let node = anchor.parentElement;
+      while (node && node !== document.documentElement) {
+        const count = collectCandidates(node).filter(
+          (el) => isSupportedField(el) && isVisible(el) && !isSensitiveField(el)
+        ).length;
+        if (count >= 2) return node;
+        node = node.parentElement;
+      }
+    }
+    return document.body || document.documentElement;
+  }
+
+  function fillCurrentForm(anchor, kit) {
+    const root = resolveFormRoot(anchor);
+    const candidates = collectCandidates(root);
+    let filled = 0;
+    let skipped = 0;
+
+    for (const el of candidates) {
+      if (!isSupportedField(el) || !isVisible(el)) continue;
+
+      if (isSensitiveField(el)) {
+        skipped += 1;
+        continue;
+      }
+
+      const kind = classifyField(el);
+      const value = valueForKind(kind, kit);
+      if (!value && kind !== "select") {
+        skipped += 1;
+        continue;
+      }
+
+      const tag = (el.tagName || "").toLowerCase();
+      if (tag === "select") {
+        fillSelect(el, value);
+      } else if (tag === "input" || tag === "textarea") {
+        insertTextIntoInputOrTextarea(el, value, false);
+      } else if (el.isContentEditable) {
+        insertTextIntoContentEditable(el, value, false);
+      } else {
+        skipped += 1;
+        continue;
+      }
+      filled += 1;
+    }
+
+    return { filled, skipped };
+  }
+
+  function showToast(text) {
+    const old = document.getElementById("oxfill-toast");
+    if (old) old.remove();
+
+    const toast = document.createElement("div");
+    toast.id = "oxfill-toast";
+    toast.textContent = text;
+    Object.assign(toast.style, {
+      position: "fixed",
+      right: "16px",
+      bottom: "16px",
+      zIndex: "2147483647",
+      maxWidth: "320px",
+      padding: "10px 14px",
+      borderRadius: "10px",
+      background: "rgba(22, 163, 74, 0.95)",
+      color: "#fff",
+      fontSize: "13px",
+      lineHeight: "1.4",
+      boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
+      fontFamily: 'Segoe UI, PingFang SC, Microsoft YaHei, sans-serif'
+    });
+    document.documentElement.appendChild(toast);
+    window.setTimeout(() => {
+      toast.remove();
+    }, 2600);
+  }
 }
-
-

@@ -1,23 +1,28 @@
 {
-  "manifest_version": 3,
-  "name": "0xFill - 快速填充",
+  "manifest_version": 2,
+  "name": "0xFill - Quick Fill",
   "short_name": "0xFill",
-  "version": "1.0.0",
-  "description": "在网页输入框中通过右键菜单快速填充多国测试号码和随机测试邮箱。",
+  "version": "1.1.0",
+  "description": "Right-click anywhere on a page to insert test data or fill the current form in one click.",
   "icons": {
-      "48": "icons/icon-48.png"
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
   },
   "action": {
-    "default_title": "0xFill",
+    "default_title": "0xFill Settings",
     "default_icon": {
       "48": "icons/icon-48.png",
       "128": "icons/icon-128.png"
     }
   },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
   "permissions": [
     "contextMenus",
-    "tabs",
-    "scripting"
+    "storage",
+    "webNavigation"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -33,9 +38,8 @@
       "js": [
         "content.js"
       ],
+      "all_frames": true,
       "run_at": "document_idle"
     }
   ]
 }
-
-
