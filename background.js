@@ -1,11 +1,11 @@
 // 内置测试号码（使用明显假号 / 预留段，避免误填真实号码）
 const BUILTIN_PHONES = [
-  { id: "phone_US", title: "🇺🇸 US: +1 202-555-0125", value: "+1 202-555-0125" },
-  { id: "phone_HK", title: "🇭🇰 HK: +852 9123 4567", value: "+852 9123 4567" },
-  { id: "phone_TW", title: "🇹🇼 TW: +886 912 345 678", value: "+886 912 345 678" },
-  { id: "phone_JP", title: "🇯🇵 JP: +81 90 1234 5678", value: "+81 90 1234 5678" },
-  { id: "phone_TH", title: "🇹🇭 TH: +66 81 234 5678", value: "+66 81 234 5678" },
-  { id: "phone_FR", title: "🇫🇷 FR: +33 6 12 34 56 78", value: "+33 6 12 34 56 78" }
+  { id: "phone_US", title: "🇺🇸: +1 202-555-0125", value: "+1 202-555-0125" },
+  { id: "phone_HK", title: "🇭🇰: +852 9123 4567", value: "+852 9123 4567" },
+  { id: "phone_TW", title: "🇹🇼: +886 912 345 678", value: "+886 912 345 678" },
+  { id: "phone_JP", title: "🇯🇵: +81 90 1234 5678", value: "+81 90 1234 5678" },
+  { id: "phone_TH", title: "🇹🇭: +66 81 234 5678", value: "+66 81 234 5678" },
+  { id: "phone_FR", title: "🇫🇷: +33 6 12 34 56 78", value: "+33 6 12 34 56 78" }
 ];
 
 const DEFAULT_SETTINGS = {
