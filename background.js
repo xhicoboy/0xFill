@@ -69,7 +69,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   const payload = resolveFillPayload(menuId);
   if (!payload) return;
 
-  await broadcastFill(tab.id, payload);
+  await sendFillToFrame(tab.id, info.frameId ?? 0, payload);
 });
 
 async function loadSettings() {
@@ -350,24 +350,30 @@ function buildFormKit() {
   };
 }
 
-async function broadcastFill(tabId, payload) {
-  let frames = null;
-  try {
-    frames = await chrome.webNavigation.getAllFrames({ tabId });
-  } catch (_e) {
-    frames = null;
-  }
+function sendMessageToFrame(tabId, frameId, payload) {
+  return new Promise((resolve) => {
+    chrome.tabs.sendMessage(tabId, payload, { frameId }, () => {
+      resolve(!chrome.runtime.lastError);
+    });
+  });
+}
 
-  if (!frames || frames.length === 0) {
-    chrome.tabs.sendMessage(tabId, payload, () => void chrome.runtime.lastError);
+async function sendFillToFrame(tabId, frameId, payload) {
+  if (await sendMessageToFrame(tabId, frameId, payload)) return;
+
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId, frameIds: [frameId] },
+      files: ["content.js"],
+      injectImmediately: true
+    });
+  } catch (_e) {
+    if (frameId === 0) return;
+    await sendFillToFrame(tabId, 0, payload);
     return;
   }
 
-  for (const frame of frames) {
-    chrome.tabs.sendMessage(tabId, payload, { frameId: frame.frameId }, () => {
-      void chrome.runtime.lastError;
-    });
-  }
+  await sendMessageToFrame(tabId, frameId, payload);
 }
 
 function generateRandomEmail() {

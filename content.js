@@ -3,11 +3,6 @@
 if (!window.__oxfillInitialized) {
   window.__oxfillInitialized = true;
 
-  let lastEditableElement = null;
-  let lastContextTarget = null;
-  // 仅在本 frame 刚触发过右键菜单时允许填充，避免广播到 iframe 时误填其他 frame
-  let fillArmed = false;
-
   const SKIP_TYPE = new Set([
     "button",
     "checkbox",
@@ -39,50 +34,6 @@ if (!window.__oxfillInitialized) {
     return Boolean(el.isContentEditable);
   }
 
-  function resolveEditableFromEvent(event) {
-    const path = typeof event.composedPath === "function" ? event.composedPath() : [];
-    for (const node of path) {
-      if (isEditableElement(node)) return node;
-    }
-    const target = event.target;
-    if (isEditableElement(target)) return target;
-    if (target && typeof target.closest === "function") {
-      const closest = target.closest(
-        "input, textarea, [contenteditable=''], [contenteditable='true']"
-      );
-      if (isEditableElement(closest)) return closest;
-    }
-    return null;
-  }
-
-  document.addEventListener(
-    "focusin",
-    (event) => {
-      const el = resolveEditableFromEvent(event);
-      if (el) lastEditableElement = el;
-    },
-    true
-  );
-
-  function resolveEventTarget(event) {
-    const path = typeof event.composedPath === "function" ? event.composedPath() : [];
-    for (const node of path) {
-      if (node && node.nodeType === 1) return node;
-    }
-    return event.target && event.target.nodeType === 1 ? event.target : null;
-  }
-
-  document.addEventListener(
-    "contextmenu",
-    (event) => {
-      fillArmed = true;
-      lastContextTarget = resolveEventTarget(event);
-      const el = resolveEditableFromEvent(event);
-      if (el) lastEditableElement = el;
-    },
-    true
-  );
-
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (!message || !message.type) return;
 
@@ -101,15 +52,7 @@ if (!window.__oxfillInitialized) {
     }
 
     if (message.type === "fillForm") {
-      if (!fillArmed) {
-        sendResponse({ ok: false });
-        return;
-      }
-      fillArmed = false;
-
       const anchor =
-        (lastContextTarget && lastContextTarget.isConnected && lastContextTarget) ||
-        (isEditableElement(lastEditableElement) && lastEditableElement) ||
         (isEditableElement(document.activeElement) && document.activeElement) ||
         document.body;
 
@@ -122,14 +65,10 @@ if (!window.__oxfillInitialized) {
   });
 
   function takeArmedEditable() {
-    let el = null;
-    if (fillArmed && isEditableElement(lastEditableElement)) {
-      el = lastEditableElement;
-    } else if (isEditableElement(document.activeElement)) {
-      el = document.activeElement;
+    if (isEditableElement(document.activeElement)) {
+      return document.activeElement;
     }
-    fillArmed = false;
-    return el;
+    return null;
   }
 
   function setNativeValue(el, value) {
