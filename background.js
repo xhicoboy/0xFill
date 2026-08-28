@@ -16,7 +16,7 @@ const DEFAULT_SETTINGS = {
     firstName: "Alex",
     lastName: "Tester",
     fullName: "Alex Tester",
-    cardNumber: "4111111111111111",
+    cardNumber: "4242424242424242",
     cardExp: "12/30",
     cardCvv: "123"
   },

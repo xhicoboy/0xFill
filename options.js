@@ -6,7 +6,7 @@ const DEFAULT_SETTINGS = {
     firstName: "Alex",
     lastName: "Tester",
     fullName: "Alex Tester",
-    cardNumber: "4242424242424242",
+    cardNumber: "4111111111111111",
     cardExp: "12/30",
     cardCvv: "123"
   },
@@ -1017,7 +1017,7 @@ function renderExtraCardItem(card, index) {
     makeExtraCardField(index, "firstName", t("cardFirstName"), "Alex", 64),
     makeExtraCardField(index, "lastName", t("cardLastName"), "Tester", 64),
     makeExtraCardField(index, "fullName", t("cardFullName"), "Alex Tester", 96),
-    makeExtraCardField(index, "cardNumber", t("cardNumber"), "4111111111111111", 19),
+    makeExtraCardField(index, "cardNumber", t("cardNumber"), "4242424242424242", 19),
     makeExtraCardExpField(index),
     makeExtraCardField(index, "cardCvv", t("cardCvv"), "123", 4)
   );
