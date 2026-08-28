@@ -1,7 +1,17 @@
 const DEFAULT_SETTINGS = {
   emailPrefix: "0x_",
   emailDomain: "text.com",
-  customSnippets: []
+  customSnippets: [],
+  cardKit: {
+    firstName: "Alex",
+    lastName: "Tester",
+    fullName: "Alex Tester",
+    cardNumber: "4242424242424242",
+    cardExp: "12/30",
+    cardCvv: "123"
+  },
+  extraCardKits: [],
+  extraCardGroupTitle: ""
 };
 
 const I18N = {
@@ -10,10 +20,30 @@ const I18N = {
     badge: "Settings",
     subtitle: "Test data generated locally · Nothing is uploaded",
     languageLabel: "Language",
+    themeLabel: "Theme",
+    themeLight: "Light",
+    themeDark: "Dark",
+    themeSystem: "System",
     emailTitle: "Random email",
     emailHint: "Prefix + 6 random characters + @domain",
     prefix: "Prefix",
     domain: "Domain",
+    cardKitTitle: "Card Fill Form",
+    cardKitHint: "Values used by “Card Fill Form”. Leave a field empty to keep the default.",
+    cardFirstName: "First name",
+    cardLastName: "Last name",
+    cardFullName: "Cardholder name",
+    cardNumber: "Card number",
+    cardExp: "Expiry (MM/YY)",
+    cardCvv: "CVV",
+    addCard: "Add card",
+    cardMenuName: "Menu name",
+    cardMenuNamePlaceholder: "e.g. Visa test card",
+    extraCardHint: "This name appears next to “Card Fill Form”. Extra cards are nested under it.",
+    extraCardGroupName: "Group name",
+    extraCardGroupPlaceholder: "e.g. Test cards",
+    needCardGroupName: "Enter a group name for extra cards.",
+    needCardName: "Enter a menu name for each extra card.",
     snippetsTitle: "Custom snippets",
     snippetsHint: "Supports up to three levels. Select a group to expand and edit it.",
     parentMenuName: "Parent menu name",
@@ -29,11 +59,12 @@ const I18N = {
     howToUse: "How to use",
     howToUseHint: "Fill data from the context menu without leaving the page.",
     tip1: "Right-click anywhere on a page and select “0xFill - Quick Fill.”",
-    tip2: "“One Click Fill” finds the form near where you right-clicked and skips passwords, verification codes, and card numbers.",
+    tip2: "“One Click Fill” finds the form near where you right-clicked, checks visible checkboxes, and skips passwords, verification codes, and card numbers.",
     tip3: "Email addresses and phone numbers replace the entire field by default; selected text is replaced instead.",
     tip4: "Random text is inserted at the cursor without clearing the field.",
     tip5: "Custom menus support up to three levels: parent menu → child item or submenu → nested item.",
     tip6: "Click the extension icon anytime to open this settings page.",
+    tip7: "“Card Fill Form” fills billing name and test card fields in the page or nested iframe. One Click Fill still skips card numbers.",
     footerNote: "Save your changes to sync them with the context menu.",
     saveSettings: "Save settings",
     childItems: "Child items",
@@ -65,10 +96,30 @@ const I18N = {
     badge: "设置",
     subtitle: "本地生成测试数据 · 不上传任何内容",
     languageLabel: "语言",
+    themeLabel: "风格",
+    themeLight: "浅色",
+    themeDark: "深色",
+    themeSystem: "跟随系统",
     emailTitle: "随机邮箱",
     emailHint: "前缀 + 6 位随机字符 + @域名",
     prefix: "前缀",
     domain: "域名",
+    cardKitTitle: "卡填表单",
+    cardKitHint: "供 “Card Fill Form” 使用。某项留空则沿用默认值。",
+    cardFirstName: "名",
+    cardLastName: "姓",
+    cardFullName: "持卡人姓名",
+    cardNumber: "卡号",
+    cardExp: "有效期（MM/YY）",
+    cardCvv: "CVV",
+    addCard: "新增卡",
+    cardMenuName: "菜单名称",
+    cardMenuNamePlaceholder: "例如：Visa 测试卡",
+    extraCardHint: "这个名称和 “Card Fill Form” 平级。额外的卡都放在它下面，点开后再选卡填充。",
+    extraCardGroupName: "分组名称",
+    extraCardGroupPlaceholder: "例如：测试卡",
+    needCardGroupName: "请填写额外卡的分组名称。",
+    needCardName: "请为每张额外的卡填写菜单名称。",
     snippetsTitle: "自定义片段",
     snippetsHint: "最多三层。点击一组即可展开编辑。",
     parentMenuName: "父菜单名",
@@ -84,11 +135,12 @@ const I18N = {
     howToUse: "使用说明",
     howToUseHint: "通过右键菜单即可填充，无需离开当前页面。",
     tip1: "在页面任意位置右键，选择 “0xFill - Quick Fill”。",
-    tip2: "“One Click Fill” 会按右键位置定位表单，并跳过密码、验证码和卡号。",
+    tip2: "“One Click Fill” 会按右键位置定位表单，勾选可见复选框，并跳过密码、验证码和卡号。",
     tip3: "邮箱和电话号码默认覆盖整个输入框；如已选中文字，则只替换选区。",
     tip4: "随机文案会插入到光标处，不会清空整个输入框。",
     tip5: "自定义菜单最多三层：父菜单 → 子选项或子菜单 → 嵌套项。",
     tip6: "随时点击扩展图标即可打开本设置页。",
+    tip7: "“Card Fill Form” 会填写当前页面或嵌套 iframe 里的账单姓名和测试卡信息。One Click Fill 仍会跳过卡号。",
     footerNote: "保存后才会同步到右键菜单。",
     saveSettings: "保存设置",
     childItems: "子选项",
@@ -130,6 +182,15 @@ const emptySnippets = document.getElementById("emptySnippets");
 const saveBtn = document.getElementById("saveBtn");
 const statusEl = document.getElementById("status");
 const languageSelect = document.getElementById("language");
+const cardFirstNameInput = document.getElementById("cardFirstName");
+const cardLastNameInput = document.getElementById("cardLastName");
+const cardFullNameInput = document.getElementById("cardFullName");
+const cardNumberInput = document.getElementById("cardNumber");
+const cardExpInput = document.getElementById("cardExp");
+const cardCvvInput = document.getElementById("cardCvv");
+const addCardKitBtn = document.getElementById("addCardKitBtn");
+const extraCardList = document.getElementById("extraCardList");
+const extraCardGroupTitleInput = document.getElementById("extraCardGroupTitle");
 
 let currentLang = "en";
 let snippets = [];
@@ -137,6 +198,11 @@ let submenuDrafts = [{ key: "d_init", title: "", values: "" }];
 let expandedGroupId = null;
 let groupAddMode = null;
 let submenuAddId = null;
+let lastCardExpValue = "";
+let extraCardKits = [];
+const THEME_MODES = ["light", "dark", "system"];
+let currentThemeMode = "system";
+const systemThemeMql = window.matchMedia("(prefers-color-scheme: dark)");
 
 init();
 
@@ -155,6 +221,9 @@ function applyStaticI18n() {
   document.title = t("pageTitle");
   languageSelect.value = currentLang;
   languageSelect.setAttribute("aria-label", t("languageLabel"));
+  document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+    el.setAttribute("aria-label", t(el.getAttribute("data-i18n-aria")));
+  });
 
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     el.textContent = t(el.getAttribute("data-i18n"));
@@ -162,6 +231,43 @@ function applyStaticI18n() {
   document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
     el.placeholder = t(el.getAttribute("data-i18n-placeholder"));
   });
+}
+
+function resolvedTheme(mode) {
+  if (mode === "light" || mode === "dark") return mode;
+  return systemThemeMql.matches ? "dark" : "light";
+}
+
+function applyTheme(mode) {
+  currentThemeMode = THEME_MODES.includes(mode) ? mode : "system";
+  const theme = resolvedTheme(currentThemeMode);
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.dataset.themeMode = currentThemeMode;
+  try {
+    localStorage.setItem("oxfill-theme", currentThemeMode);
+  } catch (_e) {}
+  document.querySelectorAll("[data-theme-choice]").forEach((btn) => {
+    const active = btn.dataset.themeChoice === currentThemeMode;
+    btn.classList.toggle("is-active", active);
+    btn.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+}
+
+function bindThemeSwitch() {
+  document.querySelectorAll("[data-theme-choice]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      applyTheme(btn.dataset.themeChoice);
+      await chrome.storage.sync.set({ uiTheme: currentThemeMode });
+    });
+  });
+  const onSystemChange = () => {
+    if (currentThemeMode === "system") applyTheme("system");
+  };
+  if (systemThemeMql.addEventListener) {
+    systemThemeMql.addEventListener("change", onSystemChange);
+  } else if (systemThemeMql.addListener) {
+    systemThemeMql.addListener(onSystemChange);
+  }
 }
 
 function formatItemCount(count) {
@@ -177,7 +283,8 @@ function formatSubmenuCount(count) {
 async function init() {
   const stored = await chrome.storage.sync.get({
     ...DEFAULT_SETTINGS,
-    uiLanguage: null
+    uiLanguage: null,
+    uiTheme: "system"
   });
   currentLang = stored.uiLanguage === "zh" || stored.uiLanguage === "en"
     ? stored.uiLanguage
@@ -185,22 +292,35 @@ async function init() {
 
   emailPrefixInput.value = stored.emailPrefix || DEFAULT_SETTINGS.emailPrefix;
   emailDomainInput.value = stored.emailDomain || DEFAULT_SETTINGS.emailDomain;
+  fillCardKitInputs(stored.cardKit);
+  extraCardKits = normalizeExtraCardKits(stored.extraCardKits);
+  extraCardGroupTitleInput.value = String(stored.extraCardGroupTitle || "");
   snippets = normalizeSnippets(stored.customSnippets);
+  applyTheme(stored.uiTheme === "light" || stored.uiTheme === "dark" ? stored.uiTheme : "system");
 
   applyStaticI18n();
   renderPreview();
   renderSnippets();
   renderSubmenuDrafts();
+  renderExtraCards();
   await requestRebuildMenus();
 
   emailPrefixInput.addEventListener("input", renderPreview);
   emailDomainInput.addEventListener("input", renderPreview);
+  cardExpInput.addEventListener("input", () => {
+    applyCardExpFormat();
+  });
+  cardNumberInput.addEventListener("input", () => {
+    cardNumberInput.value = digitsOnly(cardNumberInput.value, 19);
+  });
+  addCardKitBtn.addEventListener("click", addExtraCard);
   addSubmenuDraftBtn.addEventListener("click", () => {
     submenuDrafts.push({ key: createId("d_"), title: "", values: "" });
     renderSubmenuDrafts();
   });
   addSnippetBtn.addEventListener("click", addParentMenu);
   saveBtn.addEventListener("click", saveSettings);
+  bindThemeSwitch();
   languageSelect.addEventListener("change", async () => {
     currentLang = languageSelect.value === "zh" ? "zh" : "en";
     await chrome.storage.sync.set({ uiLanguage: currentLang });
@@ -208,6 +328,7 @@ async function init() {
     renderPreview();
     renderSnippets();
     renderSubmenuDrafts();
+    renderExtraCards();
   });
 }
 
@@ -770,18 +891,250 @@ function addParentMenu() {
 async function saveSettings() {
   const emailPrefix = emailPrefixInput.value.trim() || DEFAULT_SETTINGS.emailPrefix;
   const emailDomain = emailDomainInput.value.trim() || DEFAULT_SETTINGS.emailDomain;
+  const cardKit = readCardKitFromInputs();
+  const extraCards = normalizeExtraCardKits(extraCardKits);
+  const extraCardGroupTitle = extraCardGroupTitleInput.value.trim();
+
+  if (extraCardKits.some((card) => !String(card.title || "").trim())) {
+    setStatus(t("needCardName"));
+    return;
+  }
+  if (extraCards.length > 0 && !extraCardGroupTitle) {
+    setStatus(t("needCardGroupName"));
+    return;
+  }
 
   await chrome.storage.sync.set({
     emailPrefix,
     emailDomain,
-    customSnippets: snippets
+    customSnippets: snippets,
+    cardKit,
+    extraCardKits: extraCards,
+    extraCardGroupTitle
   });
   await requestRebuildMenus();
 
   emailPrefixInput.value = emailPrefix;
   emailDomainInput.value = emailDomain;
+  extraCardKits = extraCards;
+  extraCardGroupTitleInput.value = extraCardGroupTitle;
+  fillCardKitInputs(cardKit);
+  renderExtraCards();
   renderPreview();
   setStatus(t("statusSaved"));
+}
+
+function readCardKitFromInputs() {
+  const defaults = DEFAULT_SETTINGS.cardKit;
+  return {
+    firstName: cardFirstNameInput.value.trim() || defaults.firstName,
+    lastName: cardLastNameInput.value.trim() || defaults.lastName,
+    fullName: cardFullNameInput.value.trim() || defaults.fullName,
+    cardNumber: cardNumberInput.value.trim() || defaults.cardNumber,
+    cardExp: cardExpInput.value.trim() || defaults.cardExp,
+    cardCvv: cardCvvInput.value.trim() || defaults.cardCvv
+  };
+}
+
+function addExtraCard() {
+  extraCardKits.push({
+    id: createId("c_"),
+    title: "",
+    firstName: "",
+    lastName: "",
+    fullName: "",
+    cardNumber: "",
+    cardExp: "",
+    cardCvv: ""
+  });
+  renderExtraCards();
+  setStatus(t("statusAdded"));
+}
+
+function normalizeExtraCardKits(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item) => {
+      if (!item || item.id == null) return null;
+      const title = String(item.title || "").trim();
+      if (!title) return null;
+      return {
+        id: String(item.id),
+        title: title.slice(0, 64),
+        firstName: String(item.firstName || "").trim(),
+        lastName: String(item.lastName || "").trim(),
+        fullName: String(item.fullName || "").trim(),
+        cardNumber: String(item.cardNumber || "").trim(),
+        cardExp: String(item.cardExp || "").trim(),
+        cardCvv: String(item.cardCvv || "").trim()
+      };
+    })
+    .filter(Boolean);
+}
+
+function renderExtraCards() {
+  extraCardList.innerHTML = "";
+  extraCardKits.forEach((card, index) => {
+    extraCardList.appendChild(renderExtraCardItem(card, index));
+  });
+  extraCardGroupTitleInput.closest(".extra-card-group").hidden = extraCardKits.length === 0;
+}
+
+function renderExtraCardItem(card, index) {
+  const li = document.createElement("li");
+  li.className = "extra-card-item";
+
+  const head = document.createElement("div");
+  head.className = "extra-card-head";
+
+  const nameField = document.createElement("div");
+  nameField.className = "field";
+  const nameLabel = document.createElement("label");
+  nameLabel.textContent = t("cardMenuName");
+  const nameInput = document.createElement("input");
+  nameInput.type = "text";
+  nameInput.maxLength = 64;
+  nameInput.autocomplete = "off";
+  nameInput.placeholder = t("cardMenuNamePlaceholder");
+  nameInput.value = card.title || "";
+  nameInput.addEventListener("input", () => {
+    extraCardKits[index].title = nameInput.value;
+  });
+  nameField.append(nameLabel, nameInput);
+
+  const removeBtn = makeButton("btn danger", t("delete"), () => {
+    extraCardKits = extraCardKits.filter((item) => item.id !== card.id);
+    renderExtraCards();
+    setStatus(t("statusDeleted"));
+  });
+
+  head.append(nameField, removeBtn);
+  li.appendChild(head);
+
+  const grid = document.createElement("div");
+  grid.className = "card-kit-grid";
+  grid.append(
+    makeExtraCardField(index, "firstName", t("cardFirstName"), "Alex", 64),
+    makeExtraCardField(index, "lastName", t("cardLastName"), "Tester", 64),
+    makeExtraCardField(index, "fullName", t("cardFullName"), "Alex Tester", 96),
+    makeExtraCardField(index, "cardNumber", t("cardNumber"), "4111111111111111", 19),
+    makeExtraCardExpField(index),
+    makeExtraCardField(index, "cardCvv", t("cardCvv"), "123", 4)
+  );
+  li.appendChild(grid);
+  return li;
+}
+
+function makeExtraCardField(index, key, labelText, placeholder, maxLength) {
+  const field = document.createElement("div");
+  field.className = "field";
+  const label = document.createElement("label");
+  label.textContent = labelText;
+  const input = document.createElement("input");
+  input.type = "text";
+  input.maxLength = maxLength;
+  input.autocomplete = "off";
+  input.placeholder = placeholder;
+  input.value = extraCardKits[index][key] || "";
+  if (key === "cardNumber") {
+    input.inputMode = "numeric";
+    input.value = digitsOnly(input.value, maxLength);
+    extraCardKits[index][key] = input.value;
+  }
+  input.addEventListener("input", () => {
+    if (key === "cardNumber") {
+      input.value = digitsOnly(input.value, maxLength);
+    }
+    extraCardKits[index][key] = input.value;
+  });
+  field.append(label, input);
+  return field;
+}
+
+function makeExtraCardExpField(index) {
+  const field = document.createElement("div");
+  field.className = "field";
+  const label = document.createElement("label");
+  label.textContent = t("cardExp");
+  const input = document.createElement("input");
+  input.type = "text";
+  input.inputMode = "numeric";
+  input.maxLength = 5;
+  input.autocomplete = "off";
+  input.placeholder = "12/30";
+  input.dataset.expPrev = "";
+  const formatted = formatCardExpInput(extraCardKits[index].cardExp || "", "");
+  input.value = formatted;
+  input.dataset.expPrev = formatted;
+  extraCardKits[index].cardExp = formatted;
+  input.addEventListener("input", () => {
+    const next = formatCardExpInput(input.value, input.dataset.expPrev || "");
+    input.value = next;
+    input.dataset.expPrev = next;
+    extraCardKits[index].cardExp = next;
+  });
+  field.append(label, input);
+  return field;
+}
+
+function fillCardKitInputs(raw) {
+  const kit = { ...DEFAULT_SETTINGS.cardKit, ...(raw && typeof raw === "object" ? raw : {}) };
+  cardFirstNameInput.value = kit.firstName || DEFAULT_SETTINGS.cardKit.firstName;
+  cardLastNameInput.value = kit.lastName || DEFAULT_SETTINGS.cardKit.lastName;
+  cardFullNameInput.value = kit.fullName || DEFAULT_SETTINGS.cardKit.fullName;
+  cardNumberInput.value = digitsOnly(kit.cardNumber || DEFAULT_SETTINGS.cardKit.cardNumber, 19);
+  cardCvvInput.value = kit.cardCvv || DEFAULT_SETTINGS.cardKit.cardCvv;
+  lastCardExpValue = "";
+  cardExpInput.value = kit.cardExp || DEFAULT_SETTINGS.cardKit.cardExp;
+  applyCardExpFormat();
+}
+
+function applyCardExpFormat() {
+  const formatted = formatCardExpInput(cardExpInput.value, lastCardExpValue);
+  cardExpInput.value = formatted;
+  lastCardExpValue = formatted;
+}
+
+function digitsOnly(value, maxLength) {
+  return String(value || "").replace(/\D/g, "").slice(0, maxLength);
+}
+
+function formatCardExpInput(raw, previous) {
+  const current = String(raw || "");
+  const prev = String(previous || "");
+  let digits = current.replace(/\D/g, "").slice(0, 4);
+  const prevDigits = prev.replace(/\D/g, "");
+  const hadSlash = prev.includes("/");
+  const hasSlash = current.includes("/");
+
+  if (hadSlash && !hasSlash && digits.length === 2 && prevDigits.length >= 2) {
+    digits = digits.slice(0, 1);
+  }
+
+  digits = normalizeCardMonthDigits(digits);
+
+  if (digits.length <= 1) return digits;
+  if (digits.length === 2) return `${digits}/`;
+  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+}
+
+function normalizeCardMonthDigits(digits) {
+  if (!digits) return "";
+
+  const first = digits[0];
+  if (first >= "2" && first <= "9") {
+    return `0${digits}`.slice(0, 4);
+  }
+
+  if (first === "0") {
+    if (digits.length === 1) return "0";
+    if (digits[1] === "0") return "0";
+    return digits.slice(0, 4);
+  }
+
+  if (digits.length === 1) return "1";
+  if (digits[1] > "2") return "1";
+  return digits.slice(0, 4);
 }
 
 function setStatus(text) {

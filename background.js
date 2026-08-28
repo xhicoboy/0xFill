@@ -11,12 +11,24 @@ const BUILTIN_PHONES = [
 const DEFAULT_SETTINGS = {
   emailPrefix: "0x_",
   emailDomain: "text.com",
-  customSnippets: []
+  customSnippets: [],
+  cardKit: {
+    firstName: "Alex",
+    lastName: "Tester",
+    fullName: "Alex Tester",
+    cardNumber: "4111111111111111",
+    cardExp: "12/30",
+    cardCvv: "123"
+  },
+  extraCardKits: [],
+  extraCardGroupTitle: ""
 };
 
 const MENU = {
   root: "root_quick_test_data",
   fillForm: "fill_form",
+  fillCard: "fill_card",
+  extraCardRoot: "extra_card_root",
   email: "email_random",
   textRoot: "text_root",
   text100: "text_100",
@@ -41,8 +53,11 @@ chrome.runtime.onStartup.addListener(() => {
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== "sync") return;
-  if (!changes.emailPrefix && !changes.emailDomain && !changes.customSnippets) return;
-  initMenus();
+  if (changes.emailPrefix || changes.emailDomain || changes.customSnippets || changes.extraCardKits || changes.extraCardGroupTitle) {
+    initMenus();
+    return;
+  }
+  if (changes.cardKit) loadSettings();
 });
 
 chrome.action.onClicked.addListener(() => {
@@ -69,6 +84,11 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   const payload = resolveFillPayload(menuId);
   if (!payload) return;
 
+  if (payload.type === "fillCard") {
+    await sendCardFillToAllFrames(tab.id, payload);
+    return;
+  }
+
   await sendFillToFrame(tab.id, info.frameId ?? 0, payload);
 });
 
@@ -77,7 +97,10 @@ async function loadSettings() {
   cachedSettings = {
     emailPrefix: String(stored.emailPrefix || DEFAULT_SETTINGS.emailPrefix),
     emailDomain: String(stored.emailDomain || DEFAULT_SETTINGS.emailDomain),
-    customSnippets: normalizeSnippets(stored.customSnippets)
+    customSnippets: normalizeSnippets(stored.customSnippets),
+    cardKit: normalizeCardKit(stored.cardKit),
+    extraCardKits: normalizeExtraCardKits(stored.extraCardKits),
+    extraCardGroupTitle: String(stored.extraCardGroupTitle || "").trim()
   };
   return cachedSettings;
 }
@@ -142,6 +165,13 @@ async function rebuildContextMenus() {
     contexts: MENU_CONTEXTS
   });
 
+  await createMenu({
+    id: MENU.fillCard,
+    parentId: MENU.root,
+    title: "Card Fill Form",
+    contexts: MENU_CONTEXTS
+  });
+
   for (const item of BUILTIN_PHONES) {
     await createMenu({
       id: item.id,
@@ -149,6 +179,25 @@ async function rebuildContextMenus() {
       title: item.title,
       contexts: MENU_CONTEXTS
     });
+  }
+
+  const extraCards = (cachedSettings.extraCardKits || []).filter((card) => String(card.title || "").trim());
+  const extraGroupTitle = String(cachedSettings.extraCardGroupTitle || "").trim();
+  if (extraGroupTitle && extraCards.length > 0) {
+    await createMenu({
+      id: MENU.extraCardRoot,
+      parentId: MENU.root,
+      title: extraGroupTitle.slice(0, 64),
+      contexts: MENU_CONTEXTS
+    });
+    for (const card of extraCards) {
+      await createMenu({
+        id: `extra_card_${card.id}`,
+        parentId: MENU.extraCardRoot,
+        title: String(card.title).slice(0, 64),
+        contexts: MENU_CONTEXTS
+      });
+    }
   }
 
   // 自定义最多三层：父菜单 → 子选项/子菜单 → 孙子选项
@@ -199,6 +248,18 @@ async function rebuildContextMenus() {
 function resolveFillPayload(menuId) {
   if (menuId === MENU.fillForm) {
     return { type: "fillForm", kit: buildFormKit() };
+  }
+
+  if (menuId === MENU.fillCard) {
+    return { type: "fillCard", kit: buildCardKit() };
+  }
+
+  if (menuId.startsWith("extra_card_")) {
+    const cardId = menuId.slice("extra_card_".length);
+    const card = (cachedSettings.extraCardKits || []).find((item) => item.id === cardId);
+    if (card) {
+      return { type: "fillCard", kit: extraCardKit(card) };
+    }
   }
 
   const phone = BUILTIN_PHONES.find((item) => item.id === menuId);
@@ -350,6 +411,55 @@ function buildFormKit() {
   };
 }
 
+function buildCardKit() {
+  return { ...normalizeCardKit(cachedSettings.cardKit) };
+}
+
+function normalizeCardKit(raw) {
+  const src = raw && typeof raw === "object" ? raw : {};
+  const defaults = DEFAULT_SETTINGS.cardKit;
+  return {
+    firstName: String(src.firstName || defaults.firstName),
+    lastName: String(src.lastName || defaults.lastName),
+    fullName: String(src.fullName || defaults.fullName),
+    cardNumber: String(src.cardNumber || defaults.cardNumber),
+    cardExp: String(src.cardExp || defaults.cardExp),
+    cardCvv: String(src.cardCvv || defaults.cardCvv)
+  };
+}
+
+function normalizeExtraCardKits(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item) => {
+      if (!item || item.id == null) return null;
+      const title = String(item.title || "").trim();
+      if (!title) return null;
+      return {
+        id: String(item.id),
+        title: title.slice(0, 64),
+        firstName: String(item.firstName || "").trim(),
+        lastName: String(item.lastName || "").trim(),
+        fullName: String(item.fullName || "").trim(),
+        cardNumber: String(item.cardNumber || "").trim(),
+        cardExp: String(item.cardExp || "").trim(),
+        cardCvv: String(item.cardCvv || "").trim()
+      };
+    })
+    .filter(Boolean);
+}
+
+function extraCardKit(card) {
+  return {
+    firstName: String(card.firstName || ""),
+    lastName: String(card.lastName || ""),
+    fullName: String(card.fullName || ""),
+    cardNumber: String(card.cardNumber || ""),
+    cardExp: String(card.cardExp || ""),
+    cardCvv: String(card.cardCvv || "")
+  };
+}
+
 function sendMessageToFrame(tabId, frameId, payload) {
   return new Promise((resolve) => {
     chrome.tabs.sendMessage(tabId, payload, { frameId }, () => {
@@ -374,6 +484,33 @@ async function sendFillToFrame(tabId, frameId, payload) {
   }
 
   await sendMessageToFrame(tabId, frameId, payload);
+}
+
+async function sendCardFillToAllFrames(tabId, payload) {
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId, allFrames: true },
+      files: ["content.js"],
+      injectImmediately: true
+    });
+  } catch (_e) {
+    // 部分跨域 / 受限 frame 无法注入，其余 frame 仍继续
+  }
+
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId, allFrames: true },
+      func: (kit) => {
+        if (typeof globalThis.__oxfillFillCard === "function") {
+          return globalThis.__oxfillFillCard(kit);
+        }
+        return { filled: 0 };
+      },
+      args: [payload.kit || {}]
+    });
+  } catch (_e) {
+    await sendFillToFrame(tabId, 0, payload);
+  }
 }
 
 function generateRandomEmail() {

@@ -61,8 +61,18 @@ if (!window.__oxfillInitialized) {
       const skippedLabel = `${result.skipped} ${result.skipped === 1 ? "field" : "fields"}`;
       showToast(`0xFill: Filled ${filledLabel}; skipped ${skippedLabel}.`);
       sendResponse({ ok: true, ...result });
+      return;
+    }
+
+    if (message.type === "fillCard") {
+      const result = fillCardForm(message.kit || {});
+      sendResponse({ ok: true, ...result });
     }
   });
+
+  globalThis.__oxfillFillCard = function (kit) {
+    return fillCardForm(kit || {});
+  };
 
   function takeArmedEditable() {
     if (isEditableElement(document.activeElement)) {
@@ -196,6 +206,37 @@ if (!window.__oxfillInitialized) {
     return rect.width > 0 && rect.height > 0;
   }
 
+  function isCheckableVisible(el) {
+    if (isVisible(el)) return true;
+    if (!el || !el.isConnected) return false;
+    const style = window.getComputedStyle(el);
+    if (style.display === "none" || style.visibility === "hidden") return false;
+    const label =
+      el.closest("label") ||
+      (el.id ? document.querySelector(`label[for="${cssEscape(el.id)}"]`) : null);
+    return Boolean(label && isVisible(label));
+  }
+
+  function isCheckboxInput(el) {
+    return (el.tagName || "").toLowerCase() === "input" && (el.type || "").toLowerCase() === "checkbox";
+  }
+
+  function checkCheckbox(el) {
+    if (el.checked) return false;
+    el.click();
+    if (el.checked) return true;
+
+    const descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "checked");
+    if (descriptor && descriptor.set) {
+      descriptor.set.call(el, true);
+    } else {
+      el.checked = true;
+    }
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+    el.dispatchEvent(new Event("change", { bubbles: true }));
+    return el.checked;
+  }
+
   function getLabelText(el) {
     if (el.id) {
       const byFor = document.querySelector(`label[for="${cssEscape(el.id)}"]`);
@@ -246,7 +287,7 @@ if (!window.__oxfillInitialized) {
     const tag = (el.tagName || "").toLowerCase();
     if (tag === "input") {
       const type = (el.type || "text").toLowerCase();
-      if (type === "password" || type === "checkbox" || type === "radio") return true;
+      if (type === "password" || type === "radio") return true;
     }
     return SKIP_HINT.test(getFieldHint(el));
   }
@@ -406,7 +447,15 @@ if (!window.__oxfillInitialized) {
     let skipped = 0;
 
     for (const el of candidates) {
-      if (!isSupportedField(el) || !isVisible(el)) continue;
+      if (!isSupportedField(el)) continue;
+
+      if (isCheckboxInput(el)) {
+        if (!isCheckableVisible(el) || el.disabled) continue;
+        if (checkCheckbox(el)) filled += 1;
+        continue;
+      }
+
+      if (!isVisible(el)) continue;
 
       if (isSensitiveField(el)) {
         skipped += 1;
@@ -435,6 +484,77 @@ if (!window.__oxfillInitialized) {
     }
 
     return { filled, skipped };
+  }
+
+  function classifyCardField(el) {
+    const id = String(el.id || "").toLowerCase();
+    const name = String(el.getAttribute("name") || "").toLowerCase();
+    const ac = String(el.getAttribute("autocomplete") || "").toLowerCase();
+    const placeholder = String(el.getAttribute("placeholder") || "").toLowerCase();
+
+    if (id === "firstname" || placeholder === "first name") return "firstName";
+    if (id === "lastname" || placeholder === "last name") return "lastName";
+    if (
+      id === "fullname" ||
+      name === "cc-name" ||
+      ac === "cc-name" ||
+      placeholder.includes("cardholder")
+    ) {
+      return "fullName";
+    }
+    if (
+      id === "cardnumber" ||
+      name === "cc-number" ||
+      ac === "cc-number" ||
+      placeholder.includes("card number")
+    ) {
+      return "cardNumber";
+    }
+    if (
+      id === "expmonthyear" ||
+      name === "cc-exp" ||
+      ac === "cc-exp" ||
+      /mm\s*\/\s*yy/.test(placeholder)
+    ) {
+      return "cardExp";
+    }
+    if (
+      id === "cvv" ||
+      name === "cc-csc" ||
+      ac === "cc-csc" ||
+      /cvv|cvc|csc/.test(id) ||
+      /cvv|cvc/.test(placeholder)
+    ) {
+      return "cardCvv";
+    }
+    return null;
+  }
+
+  function fillCardForm(kit) {
+    const root =
+      document.getElementById("payment-collect") ||
+      document.querySelector(".payment-form") ||
+      document.body;
+    const candidates = collectCandidates(root);
+    let filled = 0;
+
+    for (const el of candidates) {
+      if (!el || !el.isConnected || el.disabled) continue;
+      if (!isVisible(el)) continue;
+
+      const kind = classifyCardField(el);
+      if (!kind) continue;
+      const value = kit[kind];
+      if (!value) continue;
+
+      insertTextIntoInputOrTextarea(el, value, false);
+      filled += 1;
+    }
+
+    if (filled > 0) {
+      showToast(`0xFill: Card form filled (${filled} ${filled === 1 ? "field" : "fields"}).`);
+    }
+    return { filled };
   }
 
   function showToast(text) {

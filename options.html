@@ -4,6 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>0xFill Settings</title>
+  <script>
+    (function () {
+      var mode = "system";
+      try { mode = localStorage.getItem("oxfill-theme") || "system"; } catch (_e) {}
+      if (mode !== "light" && mode !== "dark") mode = "system";
+      var theme = mode === "system"
+        ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+        : mode;
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.dataset.themeMode = mode;
+    })();
+  </script>
   <link rel="stylesheet" href="options.css" />
 </head>
 <body>
@@ -21,12 +33,34 @@
         </div>
       </div>
 
-      <div class="language-selector">
-        <label for="language" data-i18n="languageLabel">Language</label>
-        <select id="language" aria-label="Language">
-          <option value="en">English</option>
-          <option value="zh">中文</option>
-        </select>
+      <div class="header-controls">
+        <div class="theme-switch" role="group" aria-label="Theme" data-i18n-aria="themeLabel">
+          <button type="button" class="theme-choice" data-theme-choice="light" aria-pressed="false">
+            <span class="theme-icon" aria-hidden="true">
+              <svg viewBox="0 0 16 16" width="14" height="14"><path fill="currentColor" d="M8 3.2a.7.7 0 0 1 .7-.7h.01a.7.7 0 0 1 0 1.4H8.7A.7.7 0 0 1 8 3.2Zm0 9.6a.7.7 0 0 1 .7.7v.01a.7.7 0 0 1-1.4 0V13.5a.7.7 0 0 1 .7-.7ZM3.2 8a.7.7 0 0 1-.7-.7V7.3a.7.7 0 0 1 1.4 0v.01A.7.7 0 0 1 3.2 8Zm9.6 0a.7.7 0 0 1 .7-.7h.01a.7.7 0 0 1 0 1.4H13.5A.7.7 0 0 1 12.8 8ZM4.4 4.4a.7.7 0 0 1 0-1l.01-.01a.7.7 0 0 1 1 1l-.01.01a.7.7 0 0 1-1 0Zm6.2 6.2a.7.7 0 0 1 0-1l.01-.01a.7.7 0 0 1 1 1l-.01.01a.7.7 0 0 1-1 0ZM4.4 11.6a.7.7 0 0 1 1 0l.01.01a.7.7 0 1 1-1 1l-.01-.01a.7.7 0 0 1 0-1Zm6.2-6.2a.7.7 0 0 1 1 0l.01.01a.7.7 0 1 1-1 1L10.6 6.4a.7.7 0 0 1 0-1ZM8 5.2A2.8 2.8 0 1 1 8 10.8 2.8 2.8 0 0 1 8 5.2Z"/></svg>
+            </span>
+            <span data-i18n="themeLight">Light</span>
+          </button>
+          <button type="button" class="theme-choice" data-theme-choice="dark" aria-pressed="false">
+            <span class="theme-icon" aria-hidden="true">
+              <svg viewBox="0 0 16 16" width="14" height="14"><path fill="currentColor" d="M6.2 2.1a.6.6 0 0 1 .7.8A5.2 5.2 0 0 0 12.1 9c0 2.9-2.4 5.2-5.3 5.2A5.3 5.3 0 0 1 4 4.7a.6.6 0 0 1 .8-.5 4 4 0 0 0 1.4-.7Z"/></svg>
+            </span>
+            <span data-i18n="themeDark">Dark</span>
+          </button>
+          <button type="button" class="theme-choice" data-theme-choice="system" aria-pressed="false">
+            <span class="theme-icon" aria-hidden="true">
+              <svg viewBox="0 0 16 16" width="14" height="14"><path fill="currentColor" d="M2.5 3.2A1.7 1.7 0 0 1 4.2 1.5h7.6A1.7 1.7 0 0 1 13.5 3.2v6.6a1.7 1.7 0 0 1-1.7 1.7H9.2l.6 1.5h1.4a.6.6 0 0 1 0 1.2H4.8a.6.6 0 0 1 0-1.2h1.4l.6-1.5H4.2A1.7 1.7 0 0 1 2.5 9.8V3.2Zm1.2 0v6.6c0 .3.2.5.5.5h7.6c.3 0 .5-.2.5-.5V3.2c0-.3-.2-.5-.5-.5H4.2c-.3 0-.5.2-.5.5Z"/></svg>
+            </span>
+            <span data-i18n="themeSystem">System</span>
+          </button>
+        </div>
+        <div class="language-selector">
+          <label for="language" data-i18n="languageLabel">Language</label>
+          <select id="language" aria-label="Language">
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+          </select>
+        </div>
       </div>
     </header>
 
@@ -54,6 +88,51 @@
     <section class="card">
       <div class="section-head">
         <span class="index">02</span>
+        <div>
+          <h2 data-i18n="cardKitTitle">Card Fill Form</h2>
+          <p class="hint" data-i18n="cardKitHint">Values used by “Card Fill Form”. Leave a field empty to keep the default.</p>
+        </div>
+      </div>
+      <div class="card-kit-grid">
+        <div class="field">
+          <label for="cardFirstName" data-i18n="cardFirstName">First name</label>
+          <input id="cardFirstName" type="text" maxlength="64" placeholder="Alex" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="cardLastName" data-i18n="cardLastName">Last name</label>
+          <input id="cardLastName" type="text" maxlength="64" placeholder="Tester" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="cardFullName" data-i18n="cardFullName">Cardholder name</label>
+          <input id="cardFullName" type="text" maxlength="96" placeholder="Alex Tester" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="cardNumber" data-i18n="cardNumber">Card number</label>
+          <input id="cardNumber" type="text" inputmode="numeric" maxlength="19" placeholder="4242424242424242" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="cardExp" data-i18n="cardExp">Expiry (MM/YY)</label>
+          <input id="cardExp" type="text" inputmode="numeric" maxlength="5" placeholder="12/30" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="cardCvv" data-i18n="cardCvv">CVV</label>
+          <input id="cardCvv" type="text" maxlength="4" placeholder="123" autocomplete="off" />
+        </div>
+      </div>
+      <div class="field extra-card-group" hidden>
+        <label for="extraCardGroupTitle" data-i18n="extraCardGroupName">Group name</label>
+        <input id="extraCardGroupTitle" type="text" maxlength="64" data-i18n-placeholder="extraCardGroupPlaceholder" placeholder="e.g. Test cards" autocomplete="off" />
+        <p class="hint" data-i18n="extraCardHint">This name appears next to “Card Fill Form”. Extra cards are nested under it.</p>
+      </div>
+      <div class="card-kit-actions">
+        <button id="addCardKitBtn" type="button" class="btn secondary" data-i18n="addCard">Add card</button>
+      </div>
+      <ul id="extraCardList" class="extra-card-list"></ul>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <span class="index">03</span>
         <div>
           <h2 data-i18n="snippetsTitle">Custom snippets</h2>
           <p class="hint" data-i18n="snippetsHint">Supports up to three levels. Select a group to expand and edit it.</p>
@@ -88,7 +167,7 @@
 
     <section class="card muted">
       <div class="section-head">
-        <span class="index">03</span>
+        <span class="index">04</span>
         <div>
           <h2 data-i18n="howToUse">How to use</h2>
           <p class="hint" data-i18n="howToUseHint">Fill data from the context menu without leaving the page.</p>
@@ -96,11 +175,12 @@
       </div>
       <ol class="tips">
         <li data-i18n="tip1">Right-click anywhere on a page and select “0xFill - Quick Fill.”</li>
-        <li data-i18n="tip2">“One Click Fill” finds the form near where you right-clicked and skips passwords, verification codes, and card numbers.</li>
+        <li data-i18n="tip2">“One Click Fill” finds the form near where you right-clicked, checks visible checkboxes, and skips passwords, verification codes, and card numbers.</li>
         <li data-i18n="tip3">Email addresses and phone numbers replace the entire field by default; selected text is replaced instead.</li>
         <li data-i18n="tip4">Random text is inserted at the cursor without clearing the field.</li>
         <li data-i18n="tip5">Custom menus support up to three levels: parent menu → child item or submenu → nested item.</li>
         <li data-i18n="tip6">Click the extension icon anytime to open this settings page.</li>
+        <li data-i18n="tip7">“Card Fill Form” fills billing name and test card fields in the page or nested iframe. One Click Fill still skips card numbers.</li>
       </ol>
     </section>
   </main>
