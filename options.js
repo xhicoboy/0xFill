@@ -256,7 +256,7 @@ function applyTheme(mode) {
   document.documentElement.dataset.theme = theme;
   document.documentElement.dataset.themeMode = currentThemeMode;
   try {
-    localStorage.setItem("oxfill-theme", currentThemeMode);
+    localStorage.setItem("0xfill-theme", currentThemeMode);
   } catch (_e) {}
   document.querySelectorAll("[data-theme-choice]").forEach((btn) => {
     const active = btn.dataset.themeChoice === currentThemeMode;

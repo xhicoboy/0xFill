@@ -1,7 +1,7 @@
 // content.js - 单字段填充 + 一键填充当前表单（兼容 React/Vue）
 
-if (!window.__oxfillInitialized) {
-  window.__oxfillInitialized = true;
+if (!window.__0xfillInitialized) {
+  window.__0xfillInitialized = true;
 
   const SKIP_TYPE = new Set([
     "button",
@@ -143,7 +143,7 @@ if (!window.__oxfillInitialized) {
     }
   });
 
-  globalThis.__oxfillFillCard = function (kit) {
+  globalThis.__0xfillFillCard = function (kit) {
     return fillCardForm(kit || {});
   };
 
@@ -537,7 +537,7 @@ if (!window.__oxfillInitialized) {
       case "fullName":
         return kit.fullName || "Alex Tester";
       case "username":
-        return kit.username || "oxfill_user";
+        return kit.username || "0xfill_user";
       case "company":
         return kit.company || "0xFill Test Co";
       case "address":
@@ -712,11 +712,11 @@ if (!window.__oxfillInitialized) {
   }
 
   function showToast(text) {
-    const old = document.getElementById("oxfill-toast");
+    const old = document.getElementById("0xfill-toast");
     if (old) old.remove();
 
     const toast = document.createElement("div");
-    toast.id = "oxfill-toast";
+    toast.id = "0xfill-toast";
     toast.textContent = text;
     Object.assign(toast.style, {
       position: "fixed",

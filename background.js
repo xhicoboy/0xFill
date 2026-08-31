@@ -398,7 +398,7 @@ function buildFormKit() {
     firstName: "Alex",
     lastName: "Tester",
     fullName: "Alex Tester",
-    username: `oxfill_${rand}`,
+    username: `0xfill_${rand}`,
     company: "0xFill Test Co",
     address: "123 Test Street",
     city: "Testville",
@@ -501,8 +501,8 @@ async function sendCardFillToAllFrames(tabId, payload) {
     await chrome.scripting.executeScript({
       target: { tabId, allFrames: true },
       func: (kit) => {
-        if (typeof globalThis.__oxfillFillCard === "function") {
-          return globalThis.__oxfillFillCard(kit);
+        if (typeof globalThis.__0xfillFillCard === "function") {
+          return globalThis.__0xfillFillCard(kit);
         }
         return { filled: 0 };
       },

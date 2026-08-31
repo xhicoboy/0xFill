@@ -7,7 +7,7 @@
   <script>
     (function () {
       var mode = "light";
-      try { mode = localStorage.getItem("oxfill-theme") || "light"; } catch (_e) {}
+      try { mode = localStorage.getItem("0xfill-theme") || "light"; } catch (_e) {}
       if (mode !== "light" && mode !== "dark" && mode !== "system") mode = "light";
       var theme = mode === "system"
         ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
