@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "0xFill - Quick Fill",
   "short_name": "0xFill",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "description": "Right-click anywhere on a page to insert test data or fill the current form in one click.",
   "icons": {
     "48": "icons/icon-48.png",

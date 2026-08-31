@@ -40,6 +40,59 @@ if (!window.__oxfillInitialized) {
   const FILL_GAP_MS = 40;
   let fillGeneration = 0;
   let lastEditable = null;
+  let uiLang = "en";
+
+  const TOAST_I18N = {
+    en: {
+      needInput: "0xFill: Click an input field first, or choose “One Click Fill” from the context menu.",
+      fillForm: "0xFill: Filled {filled} {filledUnit} (skipped {skipped} {skippedUnit})",
+      fillCard: "0xFill: Card form filled ({filled} {filledUnit})"
+    },
+    zh: {
+      needInput: "0xFill: 请先点击输入框，或从右键菜单选择 “One Click Fill”。",
+      fillForm: "0xFill: 已填写 {filled} 个字段（跳过 {skipped} 个）",
+      fillCard: "0xFill: 已填写卡信息（{filled} 个字段）"
+    }
+  };
+
+  function detectBrowserLanguage() {
+    let raw = "";
+    try {
+      raw = chrome.i18n.getUILanguage();
+    } catch (_e) {}
+    if (!raw) {
+      raw = (navigator.languages && navigator.languages[0]) || navigator.language || "";
+    }
+    const lang = String(raw).toLowerCase().replace(/_/g, "-");
+    return lang === "zh" || lang.startsWith("zh-") ? "zh" : "en";
+  }
+
+  function resolveUiLanguage(stored) {
+    return stored === "zh" || stored === "en" ? stored : detectBrowserLanguage();
+  }
+
+  function tToast(key, vars) {
+    let text = (TOAST_I18N[uiLang] || TOAST_I18N.en)[key] ?? TOAST_I18N.en[key] ?? key;
+    if (vars) {
+      Object.keys(vars).forEach((name) => {
+        text = text.split(`{${name}}`).join(String(vars[name]));
+      });
+    }
+    return text;
+  }
+
+  function fieldUnit(count) {
+    return count === 1 ? "field" : "fields";
+  }
+
+  uiLang = detectBrowserLanguage();
+  chrome.storage.sync.get({ uiLanguage: null }, (stored) => {
+    uiLang = resolveUiLanguage(stored.uiLanguage);
+  });
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== "sync" || !changes.uiLanguage) return;
+    uiLang = resolveUiLanguage(changes.uiLanguage.newValue);
+  });
 
   document.addEventListener("focusin", (event) => {
     if (isEditableElement(event.target)) lastEditable = event.target;
@@ -53,7 +106,7 @@ if (!window.__oxfillInitialized) {
       const insertMode = message.insertMode === true;
       const el = takeArmedEditable();
       if (!el) {
-        showToast("0xFill: Click an input field first, or choose “One Click Fill” from the context menu.");
+        showToast(tToast("needInput"));
         sendResponse({ ok: false });
         return;
       }
@@ -71,9 +124,12 @@ if (!window.__oxfillInitialized) {
         document.body;
 
       fillCurrentForm(anchor, message.kit || {}).then((result) => {
-        const filledLabel = `${result.filled} ${result.filled === 1 ? "field" : "fields"}`;
-        const skippedLabel = `${result.skipped} ${result.skipped === 1 ? "field" : "fields"}`;
-        showToast(`0xFill: Filled ${filledLabel}. (skipped ${skippedLabel})`);
+        showToast(tToast("fillForm", {
+          filled: result.filled,
+          filledUnit: fieldUnit(result.filled),
+          skipped: result.skipped,
+          skippedUnit: fieldUnit(result.skipped)
+        }));
         sendResponse({ ok: true, ...result });
       });
       return true;
@@ -647,7 +703,10 @@ if (!window.__oxfillInitialized) {
     }
 
     if (filled > 0) {
-      showToast(`0xFill: Card form filled (${filled} ${filled === 1 ? "field" : "fields"})`);
+      showToast(tToast("fillCard", {
+        filled,
+        filledUnit: fieldUnit(filled)
+      }));
     }
     return { filled };
   }
