@@ -547,59 +547,65 @@ function normalizeEmailDomain(value) {
   return DEFAULT_SETTINGS.emailDomain;
 }
 
-function generateRandomText(length) {
-  const words = [
-    "the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog",
-    "hello", "world", "test", "data", "sample", "text", "example",
-    "this", "is", "a", "random", "sentence", "generated", "by", "0xFill",
-    "development", "testing", "application", "software", "programming",
-    "computer", "technology", "internet", "web", "browser", "extension",
-    "user", "interface", "design", "function", "feature", "system",
-    "code", "project", "work", "time", "day", "night", "morning",
-    "afternoon", "evening", "week", "month", "year", "today", "tomorrow",
-    "good", "great", "excellent", "wonderful", "amazing", "fantastic",
-    "beautiful", "nice", "perfect", "awesome", "incredible", "outstanding"
-  ];
+const RANDOM_SENTENCES = [
+  "Please review the sample notes before submitting this form.",
+  "The checkout flow needs a valid billing address before payment can continue.",
+  "This is placeholder copy used to check wrapping, truncation, and character limits.",
+  "Contact support if the confirmation email does not arrive within a few minutes.",
+  "The shipping label should match the name on the order summary.",
+  "Update the profile details and save your changes to continue.",
+  "A verification code was sent to the test inbox for this session.",
+  "The selected plan includes basic usage for development and QA.",
+  "Enter a short description so the team can reproduce the issue.",
+  "This field accepts a brief comment about the current request.",
+  "Try a longer remark to see how the layout handles extra lines.",
+  "The sample record is not a real customer and can be deleted later.",
+  "Keep this note attached to the ticket until the review is complete.",
+  "Confirm the date and time shown on the receipt before closing.",
+  "Use this paragraph to verify that the textarea scrolls correctly.",
+  "All values on this page are generated locally for form testing.",
+  "The previous step can be skipped when the default options are fine.",
+  "Please ignore this message if you did not start the signup flow.",
+  "The dashboard lists recent activity for the signed-in tester.",
+  "Optional comments help reviewers understand what changed.",
+  "Reload the page if the preview does not match the saved draft.",
+  "This sentence exists only to fill the box with readable English.",
+  "A second example helps confirm that each click produces new copy.",
+  "The test order can be cancelled from the confirmation screen.",
+  "Leave a status update so the next person knows what to check.",
+  "The search results should stay in view after the filters change.",
+  "Add a delivery instruction if the package needs extra handling.",
+  "The form should remain valid after you correct the highlighted fields."
+];
 
-  let text = "";
-  let sentenceCount = 0;
-  const maxSentences = length < 150 ? 3 : 6;
-
-  while (text.length < length && sentenceCount < maxSentences) {
-    const wordCount = Math.floor(Math.random() * 6) + 3;
-    const sentence = [];
-    for (let i = 0; i < wordCount; i++) {
-      sentence.push(words[Math.floor(Math.random() * words.length)]);
-    }
-
-    const sentenceText = sentence.join(" ");
-    const capitalized =
-      sentenceText.charAt(0).toUpperCase() + sentenceText.slice(1) + ".";
-
-    if (text.length > 0) text += " ";
-    text += capitalized;
-    sentenceCount++;
-
-    if (text.length > length) {
-      text = text.substring(0, length);
-      const lastPeriod = text.lastIndexOf(".");
-      if (lastPeriod > length * 0.7) {
-        text = text.substring(0, lastPeriod + 1);
-      } else {
-        const lastSpace = text.lastIndexOf(" ");
-        if (lastSpace > 0) text = text.substring(0, lastSpace) + ".";
-      }
-      break;
-    }
+function shuffleList(list) {
+  const copy = list.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = tmp;
   }
+  return copy;
+}
+
+function generateRandomText(length) {
+  const pool = shuffleList(RANDOM_SENTENCES);
+  let text = "";
+  let index = 0;
 
   while (text.length < length) {
-    const randomWord = words[Math.floor(Math.random() * words.length)];
-    const next = text + " " + randomWord;
-    if (next.length <= length) text = next;
-    else break;
+    const sentence = pool[index % pool.length];
+    index += 1;
+    text += (text ? " " : "") + sentence;
   }
 
-  if (!text.endsWith(".")) text += ".";
+  if (text.length > length) {
+    const cut = text.lastIndexOf(".", length - 1);
+    if (cut >= 0) return text.slice(0, cut + 1);
+    const first = text.indexOf(".");
+    if (first >= 0) return text.slice(0, first + 1);
+  }
+
   return text;
 }
