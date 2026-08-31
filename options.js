@@ -558,6 +558,18 @@ function toggleGroup(id) {
   renderSnippets();
 }
 
+function expandGroup(id) {
+  if (expandedGroupId === id) return;
+  expandedGroupId = id;
+  groupAddMode = null;
+  submenuAddId = null;
+  renderSnippets();
+  const titleInput = snippetList.querySelector(
+    ".snippet-group.is-open > .snippet-row > .snippet-title-input"
+  );
+  if (titleInput) titleInput.focus();
+}
+
 function renderPreview() {
   const prefix = sanitizeEmailPrefix(emailPrefixInput.value) || DEFAULT_SETTINGS.emailPrefix;
   const domain = sanitizeEmailDomainInput(emailDomainInput.value) || DEFAULT_SETTINGS.emailDomain;
@@ -613,6 +625,7 @@ function renderSnippets() {
     titleInput.value = group.title || "";
     titleInput.placeholder = t("untitledParen");
     titleInput.addEventListener("click", (event) => event.stopPropagation());
+    titleInput.addEventListener("focus", () => expandGroup(group.id));
     titleInput.addEventListener("input", () => {
       group.title = titleInput.value;
       schedulePersist();
