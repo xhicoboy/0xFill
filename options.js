@@ -6,7 +6,7 @@ const DEFAULT_SETTINGS = {
     firstName: "Alex",
     lastName: "Tester",
     fullName: "Alex Tester",
-    cardNumber: "4111111111111111",
+    cardNumber: "4242424242424242",
     cardExp: "12/30",
     cardCvv: "123"
   },
@@ -24,12 +24,12 @@ const I18N = {
     themeLight: "Light",
     themeDark: "Dark",
     themeSystem: "System",
-    emailTitle: "Random email",
-    emailHint: "Prefix + 6 random characters + @domain",
+    emailTitle: "Random Email",
+    emailHint: "Used by “Random Email”. Prefix + 6 random characters + @domain",
     prefix: "Prefix",
     domain: "Domain",
     cardKitTitle: "Card Fill Form",
-    cardKitHint: "Values used by “Card Fill Form”. Leave a field empty to keep the default.",
+    cardKitHint: "Values for the “Card Fill Form” menu item. Empty fields fall back to built-in defaults. Fills billing name and test card fields in the page or nested iframe. One Click Fill still skips card numbers.",
     cardFirstName: "First name",
     cardLastName: "Last name",
     cardFullName: "Cardholder name",
@@ -42,53 +42,51 @@ const I18N = {
     extraCardHint: "This name appears next to “Card Fill Form”. Extra cards are nested under it.",
     extraCardGroupName: "Group name",
     extraCardGroupPlaceholder: "e.g. Test cards",
+    extraCardGroupDefault: "Test cards",
+    extraCardNeedName: "Enter a menu name to show this card in the context menu.",
     needCardGroupName: "Enter a group name for extra cards.",
-    needCardName: "Enter a menu name for each extra card.",
-    snippetsTitle: "Custom snippets",
-    snippetsHint: "Supports up to three levels. Select a group to expand and edit it.",
+    snippetsTitle: "Custom menus",
+    snippetsHint: "Add a parent menu and one item per line. Expand a group to edit it, or add a submenu for a third level.",
     parentMenuName: "Parent menu name",
     parentMenuPlaceholder: "e.g. Test accounts",
-    childItemsOptional: "Child items (optional, one per line)",
+    childItemsLabel: "Child items (one per line)",
+    childItemsPlaceholder: "alice@test.com\nbob@test.com",
     submenus: "Submenus",
-    submenuComposerHint: "Add submenus now without saving the parent menu first.",
-    addAnotherSubmenu: "Add another submenu",
     add: "Add",
     addChildItem: "Add child item",
     addNestedItem: "Add nested item",
-    emptySnippets: "No custom snippets yet",
+    emptySnippets: "No custom menus yet",
     howToUse: "How to use",
     howToUseHint: "Fill data from the context menu without leaving the page.",
     tip1: "Right-click anywhere on a page and select “0xFill - Quick Fill.”",
     tip2: "“One Click Fill” finds the form near where you right-clicked, checks visible checkboxes, and skips passwords, verification codes, and card numbers.",
     tip3: "Email addresses and phone numbers replace the entire field by default; selected text is replaced instead.",
     tip4: "Random text is inserted at the cursor without clearing the field.",
-    tip5: "Custom menus support up to three levels: parent menu → child item or submenu → nested item.",
+    tip5: "Custom menus start as a parent with one item per line. Expand a group to edit it or add a submenu.",
     tip6: "Click the extension icon anytime to open this settings page.",
-    tip7: "“Card Fill Form” fills billing name and test card fields in the page or nested iframe. One Click Fill still skips card numbers.",
-    footerNote: "Save your changes to sync them with the context menu.",
-    saveSettings: "Save settings",
+    footerNote: "Changes sync to the context menu immediately.",
     childItems: "Child items",
     cancel: "Cancel",
     delete: "Delete",
     noChildItems: "No child items yet",
-    noSubmenus: "No submenus yet",
     noNestedItems: "No nested items yet",
     leafPlaceholder: "One item per line, e.g. alice@test.com",
     submenuNamePlaceholder: "Submenu name, e.g. Admin",
     nestedItemsPlaceholder: "Nested items, one per line",
     addNestedPlaceholder: "Add nested items, one per line",
     addSubmenu: "Add submenu",
-    untitled: "Untitled",
     untitledParen: "(Untitled)",
     untitledSubmenu: "Untitled submenu",
     needChildItem: "Enter at least one child item.",
     needParentName: "Enter a parent menu name.",
     needSubmenuComplete: "Enter a submenu name and at least one nested item.",
     needNestedItem: "Enter at least one nested item.",
-    needChildOrSubmenu: "Add at least one child item or one complete submenu.",
-    statusDeleted: "Deleted. Save changes to update the context menu.",
-    statusAdded: "Added. Save changes to update the context menu.",
-    statusSaved: "Settings saved. Context menu updated.",
+    statusDeleted: "Deleted. Context menu updated.",
+    statusAdded: "Added. Context menu updated.",
+    statusAddedTo: "Added to “{title}”. Context menu updated.",
+    statusSaving: "Saving…",
+    statusSaved: "Saved. Context menu updated.",
+    statusCopied: "Card number copied.",
     previewPrefix: "Preview: "
   },
   zh: {
@@ -100,12 +98,12 @@ const I18N = {
     themeLight: "浅色",
     themeDark: "深色",
     themeSystem: "跟随系统",
-    emailTitle: "随机邮箱",
-    emailHint: "前缀 + 6 位随机字符 + @域名",
+    emailTitle: "Random Email",
+    emailHint: "对应右键菜单 “Random Email”。前缀 + 6 位随机字符 + @域名",
     prefix: "前缀",
     domain: "域名",
-    cardKitTitle: "卡填表单",
-    cardKitHint: "供 “Card Fill Form” 使用。某项留空则沿用默认值。",
+    cardKitTitle: "Card Fill Form",
+    cardKitHint: "对应右键菜单 “Card Fill Form”。留空则回到内置默认值。会填写页面或嵌套 iframe 里的账单姓名和测试卡信息。One Click Fill 仍会跳过卡号。",
     cardFirstName: "名",
     cardLastName: "姓",
     cardFullName: "持卡人姓名",
@@ -118,53 +116,51 @@ const I18N = {
     extraCardHint: "这个名称和 “Card Fill Form” 平级。额外的卡都放在它下面，点开后再选卡填充。",
     extraCardGroupName: "分组名称",
     extraCardGroupPlaceholder: "例如：测试卡",
+    extraCardGroupDefault: "测试卡",
+    extraCardNeedName: "填写菜单名称后，才会出现在右键菜单里。",
     needCardGroupName: "请填写额外卡的分组名称。",
-    needCardName: "请为每张额外的卡填写菜单名称。",
-    snippetsTitle: "自定义片段",
-    snippetsHint: "最多三层。点击一组即可展开编辑。",
+    snippetsTitle: "自定义菜单",
+    snippetsHint: "先写父菜单名，再每行一条。点开一组可编辑，或添加子菜单作为第三层。",
     parentMenuName: "父菜单名",
     parentMenuPlaceholder: "例如：测试账号",
-    childItemsOptional: "子选项（可选，每行一条）",
+    childItemsLabel: "子选项（每行一条）",
+    childItemsPlaceholder: "alice@test.com\nbob@test.com",
     submenus: "子菜单",
-    submenuComposerHint: "创建时即可一起添加，不必先保存父菜单。",
-    addAnotherSubmenu: "再加一个子菜单",
     add: "添加",
     addChildItem: "添加子选项",
     addNestedItem: "添加嵌套项",
-    emptySnippets: "暂无自定义片段",
+    emptySnippets: "暂无自定义菜单",
     howToUse: "使用说明",
     howToUseHint: "通过右键菜单即可填充，无需离开当前页面。",
     tip1: "在页面任意位置右键，选择 “0xFill - Quick Fill”。",
     tip2: "“One Click Fill” 会按右键位置定位表单，勾选可见复选框，并跳过密码、验证码和卡号。",
     tip3: "邮箱和电话号码默认覆盖整个输入框；如已选中文字，则只替换选区。",
     tip4: "随机文案会插入到光标处，不会清空整个输入框。",
-    tip5: "自定义菜单最多三层：父菜单 → 子选项或子菜单 → 嵌套项。",
+    tip5: "自定义菜单默认是父菜单 + 每行一条。展开后可编辑，或添加子菜单。",
     tip6: "随时点击扩展图标即可打开本设置页。",
-    tip7: "“Card Fill Form” 会填写当前页面或嵌套 iframe 里的账单姓名和测试卡信息。One Click Fill 仍会跳过卡号。",
-    footerNote: "保存后才会同步到右键菜单。",
-    saveSettings: "保存设置",
+    footerNote: "更改会立即同步到右键菜单。",
     childItems: "子选项",
     cancel: "取消",
     delete: "删除",
     noChildItems: "暂无子选项",
-    noSubmenus: "暂无子菜单",
     noNestedItems: "暂无嵌套项",
     leafPlaceholder: "每行一条，例如 alice@test.com",
     submenuNamePlaceholder: "子菜单名，例如：管理员",
     nestedItemsPlaceholder: "嵌套项，每行一条",
     addNestedPlaceholder: "添加嵌套项，每行一条",
     addSubmenu: "添加子菜单",
-    untitled: "未命名",
     untitledParen: "(未命名)",
     untitledSubmenu: "未命名子菜单",
     needChildItem: "请至少填写一条子选项。",
     needParentName: "请填写父菜单名。",
     needSubmenuComplete: "请填写子菜单名称，并至少添加一条嵌套项。",
     needNestedItem: "请至少填写一条嵌套项。",
-    needChildOrSubmenu: "请至少添加一条子选项，或一个完整子菜单。",
-    statusDeleted: "已删除，保存后才会更新右键菜单。",
-    statusAdded: "已添加，保存后才会更新右键菜单。",
+    statusDeleted: "已删除，右键菜单已更新。",
+    statusAdded: "已添加，右键菜单已更新。",
+    statusAddedTo: "已添加到 “{title}”，右键菜单已更新。",
+    statusSaving: "保存中…",
     statusSaved: "已保存，右键菜单已更新。",
+    statusCopied: "卡号已复制。",
     previewPrefix: "预览："
   }
 };
@@ -175,11 +171,8 @@ const emailPreview = document.getElementById("emailPreview");
 const snippetTitleInput = document.getElementById("snippetTitle");
 const snippetValueInput = document.getElementById("snippetValue");
 const addSnippetBtn = document.getElementById("addSnippetBtn");
-const addSubmenuDraftBtn = document.getElementById("addSubmenuDraftBtn");
-const submenuDraftList = document.getElementById("submenuDraftList");
 const snippetList = document.getElementById("snippetList");
 const emptySnippets = document.getElementById("emptySnippets");
-const saveBtn = document.getElementById("saveBtn");
 const statusEl = document.getElementById("status");
 const languageSelect = document.getElementById("language");
 const cardFirstNameInput = document.getElementById("cardFirstName");
@@ -191,15 +184,23 @@ const cardCvvInput = document.getElementById("cardCvv");
 const addCardKitBtn = document.getElementById("addCardKitBtn");
 const extraCardList = document.getElementById("extraCardList");
 const extraCardGroupTitleInput = document.getElementById("extraCardGroupTitle");
+const extraCardGroupHint = document.getElementById("extraCardGroupHint");
+const extraCardGroupError = document.getElementById("extraCardGroupError");
+const howToUseToggle = document.getElementById("howToUseToggle");
+const howToUseBody = document.getElementById("howToUseBody");
 
 let currentLang = "en";
 let snippets = [];
-let submenuDrafts = [{ key: "d_init", title: "", values: "" }];
 let expandedGroupId = null;
 let groupAddMode = null;
 let submenuAddId = null;
 let lastCardExpValue = "";
+let cardholderManual = false;
 let extraCardKits = [];
+const extraCardholderManual = new Map();
+let expandedExtraCardId = null;
+let persistDirty = false;
+let persistChain = Promise.resolve();
 const THEME_MODES = ["light", "dark", "system"];
 let currentThemeMode = "system";
 const systemThemeMql = window.matchMedia("(prefers-color-scheme: dark)");
@@ -280,6 +281,36 @@ function formatSubmenuCount(count) {
   return count === 1 ? "1 submenu" : `${count} submenus`;
 }
 
+function composeName(first, last) {
+  return `${String(first || "").trim()} ${String(last || "").trim()}`.replace(/\s+/g, " ").trim();
+}
+
+function extraCardComposedFullName(card) {
+  const defaults = readCardKitFromInputs();
+  const first = String(card.firstName || "").trim();
+  const last = String(card.lastName || "").trim();
+  if (!first && !last) return "";
+  return composeName(first || defaults.firstName, last || defaults.lastName);
+}
+
+function composeCardholder() {
+  return composeName(cardFirstNameInput.value, cardLastNameInput.value);
+}
+
+function onNamePartInput(event) {
+  event.target.value = sanitizePersonName(event.target.value, 64);
+  if (!cardholderManual) {
+    cardFullNameInput.value = composeCardholder();
+  }
+  schedulePersist();
+}
+
+function onFullNameInput() {
+  cardFullNameInput.value = sanitizePersonName(cardFullNameInput.value, 96);
+  cardholderManual = cardFullNameInput.value.trim() !== composeCardholder();
+  schedulePersist();
+}
+
 async function init() {
   const stored = await chrome.storage.sync.get({
     ...DEFAULT_SETTINGS,
@@ -290,10 +321,10 @@ async function init() {
     ? stored.uiLanguage
     : detectBrowserLanguage();
 
-  emailPrefixInput.value = stored.emailPrefix || DEFAULT_SETTINGS.emailPrefix;
-  emailDomainInput.value = stored.emailDomain || DEFAULT_SETTINGS.emailDomain;
+  emailPrefixInput.value = sanitizeEmailPrefix(stored.emailPrefix) || DEFAULT_SETTINGS.emailPrefix;
+  emailDomainInput.value = normalizeEmailDomain(stored.emailDomain);
   fillCardKitInputs(stored.cardKit);
-  extraCardKits = normalizeExtraCardKits(stored.extraCardKits);
+  extraCardKits = parseExtraCardKits(stored.extraCardKits);
   extraCardGroupTitleInput.value = String(stored.extraCardGroupTitle || "");
   snippets = normalizeSnippets(stored.customSnippets);
   applyTheme(stored.uiTheme === "light" || stored.uiTheme === "dark" ? stored.uiTheme : "system");
@@ -301,43 +332,116 @@ async function init() {
   applyStaticI18n();
   renderPreview();
   renderSnippets();
-  renderSubmenuDrafts();
   renderExtraCards();
-  await requestRebuildMenus();
+  if (syncAutoGroupTitle()) persistNow();
 
-  emailPrefixInput.addEventListener("input", renderPreview);
-  emailDomainInput.addEventListener("input", renderPreview);
+  emailPrefixInput.addEventListener("input", () => {
+    emailPrefixInput.value = sanitizeEmailPrefix(emailPrefixInput.value);
+    renderPreview();
+    schedulePersist();
+  });
+  emailDomainInput.addEventListener("input", () => {
+    emailDomainInput.value = sanitizeEmailDomainInput(emailDomainInput.value);
+    renderPreview();
+    schedulePersist();
+  });
+  emailDomainInput.addEventListener("blur", () => {
+    const next = normalizeEmailDomain(emailDomainInput.value);
+    if (emailDomainInput.value !== next) {
+      emailDomainInput.value = next;
+      renderPreview();
+    }
+  });
+  cardFirstNameInput.addEventListener("input", onNamePartInput);
+  cardLastNameInput.addEventListener("input", onNamePartInput);
+  cardFullNameInput.addEventListener("input", onFullNameInput);
   cardExpInput.addEventListener("input", () => {
     applyCardExpFormat();
+    schedulePersist();
   });
   cardNumberInput.addEventListener("input", () => {
     cardNumberInput.value = digitsOnly(cardNumberInput.value, 19);
+    schedulePersist();
+  });
+  cardNumberInput.addEventListener("dblclick", () => {
+    copyCardNumberFromInput(cardNumberInput);
+  });
+  cardCvvInput.addEventListener("input", schedulePersist);
+  extraCardGroupTitleInput.addEventListener("input", () => {
+    syncExtraCardGroupUi();
+    schedulePersist();
   });
   addCardKitBtn.addEventListener("click", addExtraCard);
-  addSubmenuDraftBtn.addEventListener("click", () => {
-    submenuDrafts.push({ key: createId("d_"), title: "", values: "" });
-    renderSubmenuDrafts();
-  });
   addSnippetBtn.addEventListener("click", addParentMenu);
-  saveBtn.addEventListener("click", saveSettings);
+  howToUseToggle.addEventListener("click", () => {
+    const open = howToUseToggle.getAttribute("aria-expanded") === "true";
+    howToUseToggle.setAttribute("aria-expanded", open ? "false" : "true");
+    howToUseBody.hidden = open;
+  });
   bindThemeSwitch();
   languageSelect.addEventListener("change", async () => {
     currentLang = languageSelect.value === "zh" ? "zh" : "en";
     await chrome.storage.sync.set({ uiLanguage: currentLang });
     applyStaticI18n();
+    const groupTitleChanged = syncAutoGroupTitle();
     renderPreview();
     renderSnippets();
-    renderSubmenuDrafts();
     renderExtraCards();
+    if (groupTitleChanged) persistNow();
+  });
+  bindPersistFlush();
+}
+
+function isEditingField(el = document.activeElement) {
+  if (!el) return false;
+  const tag = el.tagName;
+  if (tag !== "INPUT" && tag !== "TEXTAREA") return false;
+  const type = String(el.type || "text").toLowerCase();
+  return type !== "button" && type !== "submit" && type !== "reset";
+}
+
+function schedulePersist() {
+  persistDirty = true;
+}
+
+function persistNow(message) {
+  persistDirty = false;
+  return persistSettings(message);
+}
+
+function flushPersistWhenIdle() {
+  if (!persistDirty || isEditingField()) return;
+  persistNow();
+}
+
+function bindPersistFlush() {
+  document.addEventListener("focusout", () => {
+    window.setTimeout(flushPersistWhenIdle, 0);
+  });
+  window.addEventListener("pagehide", () => {
+    if (persistDirty) persistNow();
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden" && persistDirty) persistNow();
   });
 }
 
-async function requestRebuildMenus() {
-  try {
-    await chrome.runtime.sendMessage({ type: "rebuildMenus" });
-  } catch (_e) {
-    // service worker 未就绪时由后台冷启动兜底
-  }
+function persistSettings(message) {
+  persistChain = persistChain.then(() => writeSettings(message), () => writeSettings(message));
+  return persistChain;
+}
+
+async function writeSettings(message) {
+  setStatus(t("statusSaving"), { persist: true });
+  await chrome.storage.sync.set({
+    emailPrefix: sanitizeEmailPrefix(emailPrefixInput.value) || DEFAULT_SETTINGS.emailPrefix,
+    emailDomain: normalizeEmailDomain(emailDomainInput.value),
+    customSnippets: snippets,
+    cardKit: readCardKitFromInputs(),
+    extraCardKits: serializeExtraCards(),
+    extraCardGroupTitle: extraCardGroupTitleInput.value.trim()
+  });
+  setStatus(message || t("statusSaved"));
 }
 
 function normalizeLeaves(raw, fallbackId) {
@@ -354,7 +458,7 @@ function normalizeChild(child, fallbackId, index) {
   if (!child) return null;
   const id = String(child.id || `${fallbackId}_${index}`);
 
-  if (child.type === "submenu" || Array.isArray(child.items) && child.title) {
+  if (child.type === "submenu" || (Array.isArray(child.items) && child.title)) {
     const items = normalizeLeaves(child.items, id);
     if (!items.length && !String(child.title || "").trim()) return null;
     return {
@@ -446,8 +550,8 @@ function toggleGroup(id) {
 }
 
 function renderPreview() {
-  const prefix = emailPrefixInput.value.trim() || "0x_";
-  const domain = emailDomainInput.value.trim() || "text.com";
+  const prefix = sanitizeEmailPrefix(emailPrefixInput.value) || DEFAULT_SETTINGS.emailPrefix;
+  const domain = sanitizeEmailDomainInput(emailDomainInput.value) || DEFAULT_SETTINGS.emailDomain;
   emailPreview.textContent = `${t("previewPrefix")}${prefix}abc123@${domain}`;
 }
 
@@ -472,19 +576,38 @@ function renderSnippets() {
     const li = document.createElement("li");
     li.className = `snippet-group${isOpen ? " is-open" : ""}`;
 
-    const header = document.createElement("button");
-    header.type = "button";
-    header.className = "snippet-header";
-    header.setAttribute("aria-expanded", isOpen ? "true" : "false");
-    header.addEventListener("click", () => toggleGroup(group.id));
+    const row = document.createElement("div");
+    row.className = "snippet-row";
+    row.addEventListener("click", (event) => {
+      if (event.target.closest("input, textarea, button")) return;
+      toggleGroup(group.id);
+    });
+
+    const toggleBtn = document.createElement("button");
+    toggleBtn.type = "button";
+    toggleBtn.className = "snippet-toggle";
+    toggleBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    toggleBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleGroup(group.id);
+    });
 
     const chevron = document.createElement("span");
     chevron.className = "snippet-chevron";
     chevron.setAttribute("aria-hidden", "true");
+    toggleBtn.appendChild(chevron);
 
-    const title = document.createElement("div");
-    title.className = "snippet-title";
-    title.append(group.title || t("untitledParen"));
+    const titleInput = document.createElement("input");
+    titleInput.type = "text";
+    titleInput.className = "snippet-title-input";
+    titleInput.maxLength = 64;
+    titleInput.value = group.title || "";
+    titleInput.placeholder = t("untitledParen");
+    titleInput.addEventListener("click", (event) => event.stopPropagation());
+    titleInput.addEventListener("input", () => {
+      group.title = titleInput.value;
+      schedulePersist();
+    });
 
     const meta = document.createElement("span");
     meta.className = "snippet-meta";
@@ -495,28 +618,15 @@ function renderSnippets() {
         ? `${itemLabel} · ${formatSubmenuCount(submenuCount)}`
         : itemLabel;
 
-    const count = document.createElement("span");
-    count.className = "snippet-count";
-    count.textContent = String(countLeaves(group));
-
-    header.appendChild(chevron);
-    header.appendChild(title);
-    header.appendChild(meta);
-    header.appendChild(count);
-
-    const removeBtn = makeButton("btn danger", t("delete"), (event) => {
+    const removeBtn = makeButton("btn danger snippet-delete", t("delete"), (event) => {
       event.stopPropagation();
       snippets = snippets.filter((s) => s.id !== group.id);
       if (expandedGroupId === group.id) expandedGroupId = null;
       renderSnippets();
-      setStatus(t("statusDeleted"));
+      persistNow(t("statusDeleted"));
     });
-    removeBtn.classList.add("snippet-delete");
 
-    const row = document.createElement("div");
-    row.className = "snippet-row";
-    row.appendChild(header);
-    row.appendChild(removeBtn);
+    row.append(toggleBtn, titleInput, meta, removeBtn);
     li.appendChild(row);
 
     const body = document.createElement("div");
@@ -559,10 +669,13 @@ function renderLeafSection(group, leaves) {
     list.className = "snippet-items";
     for (const child of leaves) {
       list.appendChild(
-        renderValueRow(child.value, () => {
+        renderValueRow(child, (value) => {
+          child.value = value;
+          schedulePersist();
+        }, () => {
           group.children = group.children.filter((item) => item.id !== child.id);
           renderSnippets();
-          setStatus(t("statusDeleted"));
+          persistNow(t("statusDeleted"));
         })
       );
     }
@@ -584,7 +697,7 @@ function renderLeafSection(group, leaves) {
             group.children.push({ type: "leaf", id: createId("i_"), value });
           }
           groupAddMode = null;
-          setStatus(t("statusAdded"));
+          persistNow(t("statusAdded"));
           return true;
         }
       })
@@ -611,12 +724,7 @@ function renderSubmenuSection(group, submenus) {
   );
   section.appendChild(head);
 
-  if (!submenus.length) {
-    const empty = document.createElement("p");
-    empty.className = "snippet-empty";
-    empty.textContent = t("noSubmenus");
-    section.appendChild(empty);
-  } else {
+  if (submenus.length) {
     const list = document.createElement("div");
     list.className = "snippet-submenu-list";
     for (const submenu of submenus) {
@@ -632,13 +740,14 @@ function renderSubmenuSection(group, submenus) {
   return section;
 }
 
-function renderValueRow(text, onRemove) {
+function renderValueRow(item, onChange, onRemove) {
   const row = document.createElement("li");
-  const value = document.createElement("code");
-  value.className = "snippet-value";
-  value.textContent = text;
-  row.appendChild(value);
-  row.appendChild(makeButton("btn danger", t("delete"), onRemove));
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "snippet-value-input";
+  input.value = item.value || "";
+  input.addEventListener("input", () => onChange(input.value));
+  row.append(input, makeButton("btn danger", t("delete"), onRemove));
   return row;
 }
 
@@ -688,7 +797,7 @@ function renderSubmenuCreateForm(group) {
       });
       groupAddMode = null;
       renderSnippets();
-      setStatus(t("statusAdded"));
+      persistNow(t("statusAdded"));
     })
   );
   form.appendChild(titleInput);
@@ -703,10 +812,17 @@ function renderSubmenu(group, submenu) {
 
   const header = document.createElement("div");
   header.className = "snippet-subhead";
-  const title = document.createElement("div");
-  title.className = "snippet-title";
-  title.textContent = submenu.title;
-  header.appendChild(title);
+  const titleInput = document.createElement("input");
+  titleInput.type = "text";
+  titleInput.className = "snippet-title-input";
+  titleInput.maxLength = 64;
+  titleInput.value = submenu.title || "";
+  titleInput.placeholder = t("untitledSubmenu");
+  titleInput.addEventListener("input", () => {
+    submenu.title = titleInput.value;
+    schedulePersist();
+  });
+  header.appendChild(titleInput);
   header.appendChild(
     makeButton("btn ghost", submenuAddId === submenu.id ? t("cancel") : t("addNestedItem"), () => {
       submenuAddId = submenuAddId === submenu.id ? null : submenu.id;
@@ -718,28 +834,28 @@ function renderSubmenu(group, submenu) {
       group.children = group.children.filter((item) => item.id !== submenu.id);
       if (submenuAddId === submenu.id) submenuAddId = null;
       renderSnippets();
-      setStatus(t("statusDeleted"));
+      persistNow(t("statusDeleted"));
     })
   );
   wrap.appendChild(header);
 
-  const grandList = document.createElement("ul");
-  grandList.className = "snippet-items";
   if (!submenu.items.length) {
     const empty = document.createElement("p");
     empty.className = "snippet-empty";
     empty.textContent = t("noNestedItems");
     wrap.appendChild(empty);
   } else {
+    const grandList = document.createElement("ul");
+    grandList.className = "snippet-items";
     for (const item of submenu.items) {
       grandList.appendChild(
-        renderValueRow(item.value, () => {
+        renderValueRow(item, (value) => {
+          item.value = value;
+          schedulePersist();
+        }, () => {
           submenu.items = submenu.items.filter((leaf) => leaf.id !== item.id);
-          if (submenu.items.length === 0) {
-            group.children = group.children.filter((child) => child.id !== submenu.id);
-          }
           renderSnippets();
-          setStatus(t("statusDeleted"));
+          persistNow(t("statusDeleted"));
         })
       );
     }
@@ -761,7 +877,7 @@ function renderSubmenu(group, submenu) {
             submenu.items.push({ id: createId("i_"), value });
           }
           submenuAddId = null;
-          setStatus(t("statusAdded"));
+          persistNow(t("statusAdded"));
           return true;
         }
       })
@@ -771,106 +887,33 @@ function renderSubmenu(group, submenu) {
   return wrap;
 }
 
-function collectSubmenusFromDrafts() {
-  const drafts = Array.from(submenuDraftList.querySelectorAll(".submenu-draft"));
-  return drafts
-    .map((row) => {
-      const title = row.querySelector(".submenu-draft-title").value.trim();
-      const values = parseValues(row.querySelector(".submenu-draft-values").value);
-      if (!title && !values.length) return null;
-      return { title, values };
-    })
-    .filter(Boolean);
-}
-
-function renderSubmenuDrafts() {
-  submenuDraftList.innerHTML = "";
-  submenuDrafts.forEach((draft, index) => {
-    const row = document.createElement("div");
-    row.className = "submenu-draft";
-    row.dataset.key = draft.key;
-
-    const head = document.createElement("div");
-    head.className = "submenu-draft-head";
-
-    const titleInput = document.createElement("input");
-    titleInput.type = "text";
-    titleInput.className = "submenu-draft-title";
-    titleInput.maxLength = 64;
-    titleInput.placeholder = t("submenuNamePlaceholder");
-    titleInput.value = draft.title;
-    titleInput.addEventListener("input", () => {
-      draft.title = titleInput.value;
-    });
-
-    head.appendChild(titleInput);
-    if (submenuDrafts.length > 1) {
-      head.appendChild(
-        makeButton("btn danger", t("delete"), () => {
-          submenuDrafts = submenuDrafts.filter((item) => item.key !== draft.key);
-          renderSubmenuDrafts();
-        })
-      );
-    }
-    row.appendChild(head);
-
-    const valuesInput = document.createElement("textarea");
-    valuesInput.className = "submenu-draft-values";
-    valuesInput.rows = 3;
-    valuesInput.placeholder = t("nestedItemsPlaceholder");
-    valuesInput.value = draft.values;
-    valuesInput.addEventListener("input", () => {
-      draft.values = valuesInput.value;
-    });
-    row.appendChild(valuesInput);
-    submenuDraftList.appendChild(row);
-  });
-}
-
 function resetComposer() {
   snippetTitleInput.value = "";
   snippetValueInput.value = "";
-  submenuDrafts = [{ key: createId("d_"), title: "", values: "" }];
-  renderSubmenuDrafts();
 }
 
 function addParentMenu() {
   const title = snippetTitleInput.value.trim();
   const values = parseValues(snippetValueInput.value);
-  const submenus = collectSubmenusFromDrafts();
 
   if (!title) {
     setStatus(t("needParentName"));
     return;
   }
 
-  const incomplete = submenus.find((item) => !item.title || !item.values.length);
-  if (incomplete) {
-    setStatus(t("needSubmenuComplete"));
+  if (!values.length) {
+    setStatus(t("needChildItem"));
     return;
   }
 
-  const children = [
-    ...values.map((value) => ({ type: "leaf", id: createId("i_"), value })),
-    ...submenus.map((item) => ({
-      type: "submenu",
-      id: createId("s_"),
-      title: item.title,
-      items: item.values.map((value) => ({ id: createId("i_"), value }))
-    }))
-  ];
-
-  if (!children.length) {
-    setStatus(t("needChildOrSubmenu"));
-    return;
-  }
-
+  const children = values.map((value) => ({ type: "leaf", id: createId("i_"), value }));
   const existing = snippets.find((group) => group.title === title);
+  let message = t("statusAdded");
+
   if (existing) {
     existing.children.push(...children);
     expandedGroupId = existing.id;
-    groupAddMode = null;
-    submenuAddId = null;
+    message = t("statusAddedTo").replace("{title}", existing.title);
   } else {
     const group = {
       id: createId("g_"),
@@ -879,49 +922,13 @@ function addParentMenu() {
     };
     snippets.push(group);
     expandedGroupId = group.id;
-    groupAddMode = null;
-    submenuAddId = null;
   }
 
+  groupAddMode = null;
+  submenuAddId = null;
   resetComposer();
   renderSnippets();
-  setStatus(t("statusAdded"));
-}
-
-async function saveSettings() {
-  const emailPrefix = emailPrefixInput.value.trim() || DEFAULT_SETTINGS.emailPrefix;
-  const emailDomain = emailDomainInput.value.trim() || DEFAULT_SETTINGS.emailDomain;
-  const cardKit = readCardKitFromInputs();
-  const extraCards = normalizeExtraCardKits(extraCardKits);
-  const extraCardGroupTitle = extraCardGroupTitleInput.value.trim();
-
-  if (extraCardKits.some((card) => !String(card.title || "").trim())) {
-    setStatus(t("needCardName"));
-    return;
-  }
-  if (extraCards.length > 0 && !extraCardGroupTitle) {
-    setStatus(t("needCardGroupName"));
-    return;
-  }
-
-  await chrome.storage.sync.set({
-    emailPrefix,
-    emailDomain,
-    customSnippets: snippets,
-    cardKit,
-    extraCardKits: extraCards,
-    extraCardGroupTitle
-  });
-  await requestRebuildMenus();
-
-  emailPrefixInput.value = emailPrefix;
-  emailDomainInput.value = emailDomain;
-  extraCardKits = extraCards;
-  extraCardGroupTitleInput.value = extraCardGroupTitle;
-  fillCardKitInputs(cardKit);
-  renderExtraCards();
-  renderPreview();
-  setStatus(t("statusSaved"));
+  persistNow(message);
 }
 
 function readCardKitFromInputs() {
@@ -937,7 +944,7 @@ function readCardKitFromInputs() {
 }
 
 function addExtraCard() {
-  extraCardKits.push({
+  const card = {
     id: createId("c_"),
     title: "",
     firstName: "",
@@ -946,30 +953,100 @@ function addExtraCard() {
     cardNumber: "",
     cardExp: "",
     cardCvv: ""
-  });
+  };
+  extraCardKits.push(card);
+  expandedExtraCardId = card.id;
+  syncAutoGroupTitle();
   renderExtraCards();
-  setStatus(t("statusAdded"));
+  persistNow(t("statusAdded"));
+  const nameInput = extraCardList.querySelector(".extra-card-item.is-open .extra-card-name");
+  if (nameInput) nameInput.focus();
 }
 
-function normalizeExtraCardKits(raw) {
+function parseExtraCardKits(raw) {
   if (!Array.isArray(raw)) return [];
   return raw
     .map((item) => {
       if (!item || item.id == null) return null;
-      const title = String(item.title || "").trim();
-      if (!title) return null;
       return {
         id: String(item.id),
-        title: title.slice(0, 64),
-        firstName: String(item.firstName || "").trim(),
-        lastName: String(item.lastName || "").trim(),
-        fullName: String(item.fullName || "").trim(),
-        cardNumber: String(item.cardNumber || "").trim(),
-        cardExp: String(item.cardExp || "").trim(),
-        cardCvv: String(item.cardCvv || "").trim()
+        title: String(item.title || "").slice(0, 64),
+        firstName: sanitizePersonName(item.firstName, 64),
+        lastName: sanitizePersonName(item.lastName, 64),
+        fullName: sanitizePersonName(item.fullName, 96),
+        cardNumber: String(item.cardNumber || ""),
+        cardExp: String(item.cardExp || ""),
+        cardCvv: String(item.cardCvv || "")
       };
     })
     .filter(Boolean);
+}
+
+function serializeExtraCards() {
+  return extraCardKits.map((item) => ({
+    id: String(item.id),
+    title: String(item.title || "").trim().slice(0, 64),
+    firstName: sanitizePersonName(item.firstName, 64).trim(),
+    lastName: sanitizePersonName(item.lastName, 64).trim(),
+    fullName: sanitizePersonName(item.fullName, 96).trim(),
+    cardNumber: String(item.cardNumber || "").trim(),
+    cardExp: String(item.cardExp || "").trim(),
+    cardCvv: String(item.cardCvv || "").trim()
+  }));
+}
+
+function extraCardGroupDefaults() {
+  return [...new Set(
+    Object.values(I18N)
+      .map((table) => table.extraCardGroupDefault)
+      .filter(Boolean)
+  )];
+}
+
+function isAutoGroupTitle(value) {
+  const title = String(value || "").trim();
+  return !title || extraCardGroupDefaults().includes(title);
+}
+
+function syncAutoGroupTitle() {
+  if (extraCardKits.length === 0) return false;
+  if (!isAutoGroupTitle(extraCardGroupTitleInput.value)) return false;
+  const next = t("extraCardGroupDefault");
+  if (extraCardGroupTitleInput.value.trim() === next) return false;
+  extraCardGroupTitleInput.value = next;
+  return true;
+}
+
+function defaultCardPlaceholders() {
+  const kit = readCardKitFromInputs();
+  return {
+    firstName: kit.firstName,
+    lastName: kit.lastName,
+    fullName: kit.fullName,
+    cardNumber: kit.cardNumber,
+    cardExp: kit.cardExp,
+    cardCvv: kit.cardCvv
+  };
+}
+
+function extraCardLast4Label(cardNumber) {
+  const tail = cardNumberTail(cardNumber) || cardNumberTail(readCardKitFromInputs().cardNumber);
+  return tail ? `•••• ${tail}` : "";
+}
+
+function cardNumberTail(value) {
+  const digits = digitsOnly(value, 19);
+  if (digits.length >= 4) return digits.slice(-4);
+  return "";
+}
+
+function syncExtraCardGroupUi() {
+  const wrap = extraCardGroupTitleInput.closest(".extra-card-group");
+  wrap.hidden = extraCardKits.length === 0;
+  const missing = extraCardKits.length > 0 && !extraCardGroupTitleInput.value.trim();
+  extraCardGroupError.hidden = !missing;
+  extraCardGroupHint.hidden = missing;
+  extraCardGroupError.textContent = missing ? t("needCardGroupName") : "";
 }
 
 function renderExtraCards() {
@@ -977,55 +1054,136 @@ function renderExtraCards() {
   extraCardKits.forEach((card, index) => {
     extraCardList.appendChild(renderExtraCardItem(card, index));
   });
-  extraCardGroupTitleInput.closest(".extra-card-group").hidden = extraCardKits.length === 0;
+  syncExtraCardGroupUi();
+}
+
+function applyExtraCardExpanded() {
+  extraCardList.querySelectorAll(".extra-card-item").forEach((el) => {
+    const open = el.dataset.cardId === expandedExtraCardId;
+    el.classList.toggle("is-open", open);
+    const btn = el.querySelector(".extra-card-toggle");
+    if (btn) btn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+}
+
+function toggleExtraCard(id) {
+  expandedExtraCardId = expandedExtraCardId === id ? null : id;
+  applyExtraCardExpanded();
+}
+
+function expandExtraCard(id) {
+  if (expandedExtraCardId === id) return;
+  expandedExtraCardId = id;
+  applyExtraCardExpanded();
 }
 
 function renderExtraCardItem(card, index) {
+  const isOpen = expandedExtraCardId === card.id;
+  const titled = Boolean(String(card.title || "").trim());
   const li = document.createElement("li");
-  li.className = "extra-card-item";
+  li.className = `extra-card-item${isOpen ? " is-open" : ""}`;
+  li.dataset.cardId = card.id;
+  if (!extraCardholderManual.has(card.id)) {
+    extraCardholderManual.set(
+      card.id,
+      String(card.fullName || "").trim() !== extraCardComposedFullName(card)
+    );
+  }
+  const placeholders = defaultCardPlaceholders();
 
-  const head = document.createElement("div");
-  head.className = "extra-card-head";
+  const summary = document.createElement("div");
+  summary.className = "extra-card-summary";
+  summary.addEventListener("click", (event) => {
+    if (event.target.closest("input, button")) return;
+    toggleExtraCard(card.id);
+  });
 
-  const nameField = document.createElement("div");
-  nameField.className = "field";
-  const nameLabel = document.createElement("label");
-  nameLabel.textContent = t("cardMenuName");
+  const toggleBtn = document.createElement("button");
+  toggleBtn.type = "button";
+  toggleBtn.className = "extra-card-toggle";
+  toggleBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  toggleBtn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    toggleExtraCard(card.id);
+  });
+  const chevron = document.createElement("span");
+  chevron.className = "snippet-chevron";
+  chevron.setAttribute("aria-hidden", "true");
+  toggleBtn.appendChild(chevron);
+
   const nameInput = document.createElement("input");
   nameInput.type = "text";
+  nameInput.className = "extra-card-name";
   nameInput.maxLength = 64;
   nameInput.autocomplete = "off";
   nameInput.placeholder = t("cardMenuNamePlaceholder");
   nameInput.value = card.title || "";
+  nameInput.addEventListener("click", (event) => event.stopPropagation());
+  nameInput.addEventListener("focus", () => expandExtraCard(card.id));
   nameInput.addEventListener("input", () => {
     extraCardKits[index].title = nameInput.value;
+    const hint = li.querySelector(".extra-card-need-name");
+    if (hint) hint.hidden = Boolean(nameInput.value.trim());
+    schedulePersist();
   });
-  nameField.append(nameLabel, nameInput);
 
-  const removeBtn = makeButton("btn danger", t("delete"), () => {
+  const last4 = document.createElement("span");
+  last4.className = "extra-card-last4";
+  last4.textContent = extraCardLast4Label(card.cardNumber);
+
+  const removeBtn = makeButton("btn danger", t("delete"), (event) => {
+    event.stopPropagation();
     extraCardKits = extraCardKits.filter((item) => item.id !== card.id);
+    extraCardholderManual.delete(card.id);
+    if (expandedExtraCardId === card.id) expandedExtraCardId = null;
     renderExtraCards();
-    setStatus(t("statusDeleted"));
+    persistNow(t("statusDeleted"));
   });
 
-  head.append(nameField, removeBtn);
-  li.appendChild(head);
+  summary.append(toggleBtn, nameInput, last4, removeBtn);
+  li.appendChild(summary);
 
-  const grid = document.createElement("div");
-  grid.className = "card-kit-grid";
-  grid.append(
-    makeExtraCardField(index, "firstName", t("cardFirstName"), "Alex", 64),
-    makeExtraCardField(index, "lastName", t("cardLastName"), "Tester", 64),
-    makeExtraCardField(index, "fullName", t("cardFullName"), "Alex Tester", 96),
-    makeExtraCardField(index, "cardNumber", t("cardNumber"), "4242424242424242", 19),
-    makeExtraCardExpField(index),
-    makeExtraCardField(index, "cardCvv", t("cardCvv"), "123", 4)
+  const needName = document.createElement("p");
+  needName.className = "extra-card-need-name";
+  needName.textContent = t("extraCardNeedName");
+  needName.hidden = titled;
+  li.appendChild(needName);
+
+  const body = document.createElement("div");
+  body.className = "extra-card-body";
+  const inner = document.createElement("div");
+  inner.className = "extra-card-body-inner";
+  const fields = document.createElement("div");
+  fields.className = "extra-card-fields";
+  fields.append(
+    makeExtraCardField(index, "cardNumber", t("cardNumber"), placeholders.cardNumber, 19, last4),
+    makeExtraCardExpField(index, placeholders.cardExp),
+    makeExtraCardField(index, "cardCvv", t("cardCvv"), placeholders.cardCvv, 4),
+    makeExtraCardField(index, "firstName", t("cardFirstName"), placeholders.firstName, 64),
+    makeExtraCardField(index, "lastName", t("cardLastName"), placeholders.lastName, 64),
+    makeExtraCardField(index, "fullName", t("cardFullName"), placeholders.fullName, 96)
   );
-  li.appendChild(grid);
+  inner.appendChild(fields);
+  body.appendChild(inner);
+  li.appendChild(body);
   return li;
 }
 
-function makeExtraCardField(index, key, labelText, placeholder, maxLength) {
+function syncExtraCardholder(index, changedKey, root) {
+  const card = extraCardKits[index];
+  if (!card) return;
+  const composed = extraCardComposedFullName(card);
+  if (changedKey === "fullName") {
+    extraCardholderManual.set(card.id, String(card.fullName || "").trim() !== composed);
+    return;
+  }
+  if (extraCardholderManual.get(card.id)) return;
+  card.fullName = composed;
+  const fullInput = root && root.querySelector('[data-card-field="fullName"]');
+  if (fullInput) fullInput.value = composed;
+}
+
+function makeExtraCardField(index, key, labelText, placeholder, maxLength, last4El) {
   const field = document.createElement("div");
   field.className = "field";
   const label = document.createElement("label");
@@ -1035,23 +1193,39 @@ function makeExtraCardField(index, key, labelText, placeholder, maxLength) {
   input.maxLength = maxLength;
   input.autocomplete = "off";
   input.placeholder = placeholder;
+  input.dataset.cardField = key;
   input.value = extraCardKits[index][key] || "";
+  if (key === "firstName" || key === "lastName" || key === "fullName") {
+    input.value = sanitizePersonName(input.value, maxLength);
+    extraCardKits[index][key] = input.value;
+  }
   if (key === "cardNumber") {
     input.inputMode = "numeric";
     input.value = digitsOnly(input.value, maxLength);
     extraCardKits[index][key] = input.value;
+    input.addEventListener("dblclick", () => {
+      copyCardNumberFromInput(input);
+    });
   }
   input.addEventListener("input", () => {
     if (key === "cardNumber") {
       input.value = digitsOnly(input.value, maxLength);
+      if (last4El) last4El.textContent = extraCardLast4Label(input.value);
+    }
+    if (key === "firstName" || key === "lastName" || key === "fullName") {
+      input.value = sanitizePersonName(input.value, maxLength);
     }
     extraCardKits[index][key] = input.value;
+    if (key === "firstName" || key === "lastName" || key === "fullName") {
+      syncExtraCardholder(index, key, field.closest(".extra-card-item"));
+    }
+    schedulePersist();
   });
   field.append(label, input);
   return field;
 }
 
-function makeExtraCardExpField(index) {
+function makeExtraCardExpField(index, placeholder) {
   const field = document.createElement("div");
   field.className = "field";
   const label = document.createElement("label");
@@ -1061,7 +1235,7 @@ function makeExtraCardExpField(index) {
   input.inputMode = "numeric";
   input.maxLength = 5;
   input.autocomplete = "off";
-  input.placeholder = "12/30";
+  input.placeholder = placeholder;
   input.dataset.expPrev = "";
   const formatted = formatCardExpInput(extraCardKits[index].cardExp || "", "");
   input.value = formatted;
@@ -1072,6 +1246,7 @@ function makeExtraCardExpField(index) {
     input.value = next;
     input.dataset.expPrev = next;
     extraCardKits[index].cardExp = next;
+    schedulePersist();
   });
   field.append(label, input);
   return field;
@@ -1079,14 +1254,15 @@ function makeExtraCardExpField(index) {
 
 function fillCardKitInputs(raw) {
   const kit = { ...DEFAULT_SETTINGS.cardKit, ...(raw && typeof raw === "object" ? raw : {}) };
-  cardFirstNameInput.value = kit.firstName || DEFAULT_SETTINGS.cardKit.firstName;
-  cardLastNameInput.value = kit.lastName || DEFAULT_SETTINGS.cardKit.lastName;
-  cardFullNameInput.value = kit.fullName || DEFAULT_SETTINGS.cardKit.fullName;
+  cardFirstNameInput.value = sanitizePersonName(kit.firstName, 64) || DEFAULT_SETTINGS.cardKit.firstName;
+  cardLastNameInput.value = sanitizePersonName(kit.lastName, 64) || DEFAULT_SETTINGS.cardKit.lastName;
+  cardFullNameInput.value = sanitizePersonName(kit.fullName, 96) || DEFAULT_SETTINGS.cardKit.fullName;
   cardNumberInput.value = digitsOnly(kit.cardNumber || DEFAULT_SETTINGS.cardKit.cardNumber, 19);
   cardCvvInput.value = kit.cardCvv || DEFAULT_SETTINGS.cardKit.cardCvv;
   lastCardExpValue = "";
   cardExpInput.value = kit.cardExp || DEFAULT_SETTINGS.cardKit.cardExp;
   applyCardExpFormat();
+  cardholderManual = cardFullNameInput.value.trim() !== composeCardholder();
 }
 
 function applyCardExpFormat() {
@@ -1095,8 +1271,52 @@ function applyCardExpFormat() {
   lastCardExpValue = formatted;
 }
 
+function sanitizeEmailPrefix(value) {
+  return String(value || "")
+    .replace(/[^a-zA-Z0-9._+-]/g, "")
+    .slice(0, 4);
+}
+
+function sanitizeEmailDomainInput(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9.-]/g, "")
+    .replace(/\.{2,}/g, ".")
+    .replace(/^[^a-z0-9]+/, "")
+    .slice(0, 64);
+}
+
+function normalizeEmailDomain(value) {
+  const domain = sanitizeEmailDomainInput(value).replace(/\.+$/g, "");
+  if (/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/.test(domain)) {
+    return domain;
+  }
+  return DEFAULT_SETTINGS.emailDomain;
+}
+
+function sanitizePersonName(value, maxLength) {
+  const next = String(value || "")
+    .replace(/\p{Script=Han}/gu, "")
+    .replace(/\p{Nd}/gu, "");
+  return typeof maxLength === "number" ? next.slice(0, maxLength) : next;
+}
+
 function digitsOnly(value, maxLength) {
   return String(value || "").replace(/\D/g, "").slice(0, maxLength);
+}
+
+function copyCardNumberFromInput(input) {
+  const value = digitsOnly(input.value, 19) || digitsOnly(input.placeholder, 19);
+  if (!value) return;
+  input.select();
+  const done = () => setStatus(t("statusCopied"));
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(value).then(done).catch(() => {
+      if (document.execCommand("copy")) done();
+    });
+    return;
+  }
+  if (document.execCommand("copy")) done();
 }
 
 function formatCardExpInput(raw, previous) {
@@ -1137,10 +1357,17 @@ function normalizeCardMonthDigits(digits) {
   return digits.slice(0, 4);
 }
 
-function setStatus(text) {
-  statusEl.textContent = text;
+function setStatus(text, { persist } = {}) {
   window.clearTimeout(setStatus._timer);
-  setStatus._timer = window.setTimeout(() => {
+  if (!text) {
+    statusEl.classList.remove("is-visible");
     statusEl.textContent = "";
+    return;
+  }
+  statusEl.textContent = text;
+  statusEl.classList.add("is-visible");
+  if (persist) return;
+  setStatus._timer = window.setTimeout(() => {
+    statusEl.classList.remove("is-visible");
   }, 2500);
 }

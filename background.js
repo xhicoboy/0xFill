@@ -95,8 +95,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 async function loadSettings() {
   const stored = await chrome.storage.sync.get(DEFAULT_SETTINGS);
   cachedSettings = {
-    emailPrefix: String(stored.emailPrefix || DEFAULT_SETTINGS.emailPrefix),
-    emailDomain: String(stored.emailDomain || DEFAULT_SETTINGS.emailDomain),
+    emailPrefix: sanitizeEmailPrefix(stored.emailPrefix) || DEFAULT_SETTINGS.emailPrefix,
+    emailDomain: normalizeEmailDomain(stored.emailDomain),
     customSnippets: normalizeSnippets(stored.customSnippets),
     cardKit: normalizeCardKit(stored.cardKit),
     extraCardKits: normalizeExtraCardKits(stored.extraCardKits),
@@ -450,13 +450,14 @@ function normalizeExtraCardKits(raw) {
 }
 
 function extraCardKit(card) {
+  const base = buildCardKit();
   return {
-    firstName: String(card.firstName || ""),
-    lastName: String(card.lastName || ""),
-    fullName: String(card.fullName || ""),
-    cardNumber: String(card.cardNumber || ""),
-    cardExp: String(card.cardExp || ""),
-    cardCvv: String(card.cardCvv || "")
+    firstName: String(card.firstName || "").trim() || base.firstName,
+    lastName: String(card.lastName || "").trim() || base.lastName,
+    fullName: String(card.fullName || "").trim() || base.fullName,
+    cardNumber: String(card.cardNumber || "").trim() || base.cardNumber,
+    cardExp: String(card.cardExp || "").trim() || base.cardExp,
+    cardCvv: String(card.cardCvv || "").trim() || base.cardCvv
   };
 }
 
@@ -519,9 +520,32 @@ function generateRandomEmail() {
   for (let i = 0; i < 6; i++) {
     rand += chars[Math.floor(Math.random() * chars.length)];
   }
-  const prefix = cachedSettings.emailPrefix || "0x_";
-  const domain = cachedSettings.emailDomain || "text.com";
+  const prefix = sanitizeEmailPrefix(cachedSettings.emailPrefix) || DEFAULT_SETTINGS.emailPrefix;
+  const domain = normalizeEmailDomain(cachedSettings.emailDomain);
   return `${prefix}${rand}@${domain}`;
+}
+
+function sanitizeEmailPrefix(value) {
+  return String(value || "")
+    .replace(/[^a-zA-Z0-9._+-]/g, "")
+    .slice(0, 4);
+}
+
+function sanitizeEmailDomainInput(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9.-]/g, "")
+    .replace(/\.{2,}/g, ".")
+    .replace(/^[^a-z0-9]+/, "")
+    .slice(0, 64);
+}
+
+function normalizeEmailDomain(value) {
+  const domain = sanitizeEmailDomainInput(value).replace(/\.+$/g, "");
+  if (/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/.test(domain)) {
+    return domain;
+  }
+  return DEFAULT_SETTINGS.emailDomain;
 }
 
 function generateRandomText(length) {

@@ -20,6 +20,7 @@
 </head>
 <body>
   <div class="backdrop" aria-hidden="true"></div>
+  <div id="status" class="toast" role="status" aria-live="polite"></div>
   <main class="page">
     <header class="header">
       <div class="brand">
@@ -68,18 +69,18 @@
       <div class="section-head">
         <span class="index">01</span>
         <div>
-          <h2 data-i18n="emailTitle">Random email</h2>
-          <p class="hint" data-i18n="emailHint">Prefix + 6 random characters + @domain</p>
+          <h2 data-i18n="emailTitle">Random Email</h2>
+          <p class="hint" data-i18n="emailHint">Used by “Random Email”. Prefix + 6 random characters + @domain</p>
         </div>
       </div>
       <div class="email-grid">
         <div class="field">
           <label for="emailPrefix" data-i18n="prefix">Prefix</label>
-          <input id="emailPrefix" type="text" maxlength="32" placeholder="0x_" autocomplete="off" />
+          <input id="emailPrefix" type="text" maxlength="4" placeholder="0x_" autocomplete="off" spellcheck="false" />
         </div>
         <div class="field">
           <label for="emailDomain" data-i18n="domain">Domain</label>
-          <input id="emailDomain" type="text" maxlength="64" placeholder="text.com" autocomplete="off" />
+          <input id="emailDomain" type="text" maxlength="64" placeholder="text.com" autocomplete="off" spellcheck="false" autocapitalize="off" />
         </div>
       </div>
       <p class="preview" id="emailPreview">Preview: 0x_abc123@text.com</p>
@@ -90,7 +91,7 @@
         <span class="index">02</span>
         <div>
           <h2 data-i18n="cardKitTitle">Card Fill Form</h2>
-          <p class="hint" data-i18n="cardKitHint">Values used by “Card Fill Form”. Leave a field empty to keep the default.</p>
+          <p class="hint" data-i18n="cardKitHint">Values for the “Card Fill Form” menu item. Empty fields fall back to built-in defaults. Fills billing name and test card fields in the page or nested iframe. One Click Fill still skips card numbers.</p>
         </div>
       </div>
       <div class="card-kit-grid">
@@ -119,23 +120,26 @@
           <input id="cardCvv" type="text" maxlength="4" placeholder="123" autocomplete="off" />
         </div>
       </div>
-      <div class="field extra-card-group" hidden>
-        <label for="extraCardGroupTitle" data-i18n="extraCardGroupName">Group name</label>
-        <input id="extraCardGroupTitle" type="text" maxlength="64" data-i18n-placeholder="extraCardGroupPlaceholder" placeholder="e.g. Test cards" autocomplete="off" />
-        <p class="hint" data-i18n="extraCardHint">This name appears next to “Card Fill Form”. Extra cards are nested under it.</p>
+      <div class="extra-cards">
+        <div class="extra-cards-toolbar">
+          <div class="field extra-card-group" hidden>
+            <label for="extraCardGroupTitle" data-i18n="extraCardGroupName">Group name</label>
+            <input id="extraCardGroupTitle" type="text" maxlength="64" data-i18n-placeholder="extraCardGroupPlaceholder" placeholder="e.g. Test cards" autocomplete="off" />
+            <p class="hint" id="extraCardGroupHint" data-i18n="extraCardHint">This name appears next to “Card Fill Form”. Extra cards are nested under it.</p>
+            <p class="field-error" id="extraCardGroupError" hidden></p>
+          </div>
+          <button id="addCardKitBtn" type="button" class="btn secondary" data-i18n="addCard">Add card</button>
+        </div>
+        <ul id="extraCardList" class="extra-card-list"></ul>
       </div>
-      <div class="card-kit-actions">
-        <button id="addCardKitBtn" type="button" class="btn secondary" data-i18n="addCard">Add card</button>
-      </div>
-      <ul id="extraCardList" class="extra-card-list"></ul>
     </section>
 
     <section class="card">
       <div class="section-head">
         <span class="index">03</span>
         <div>
-          <h2 data-i18n="snippetsTitle">Custom snippets</h2>
-          <p class="hint" data-i18n="snippetsHint">Supports up to three levels. Select a group to expand and edit it.</p>
+          <h2 data-i18n="snippetsTitle">Custom menus</h2>
+          <p class="hint" data-i18n="snippetsHint">Add a parent menu and one item per line. Expand a group to edit it, or add a submenu for a third level.</p>
         </div>
       </div>
 
@@ -145,53 +149,41 @@
           <input id="snippetTitle" type="text" maxlength="64" data-i18n-placeholder="parentMenuPlaceholder" placeholder="e.g. Test accounts" autocomplete="off" />
         </div>
         <div class="field">
-          <label for="snippetValue" data-i18n="childItemsOptional">Child items (optional, one per line)</label>
-          <textarea id="snippetValue" maxlength="4000" rows="3" placeholder="alice@test.com&#10;bob@test.com"></textarea>
-        </div>
-        <div class="composer-block">
-          <div class="composer-head">
-            <div>
-              <h3 data-i18n="submenus">Submenus</h3>
-              <p class="hint" data-i18n="submenuComposerHint">Add submenus now without saving the parent menu first.</p>
-            </div>
-            <button id="addSubmenuDraftBtn" type="button" class="btn secondary" data-i18n="addAnotherSubmenu">Add another submenu</button>
-          </div>
-          <div id="submenuDraftList" class="submenu-draft-list"></div>
+          <label for="snippetValue" data-i18n="childItemsLabel">Child items (one per line)</label>
+          <textarea id="snippetValue" maxlength="4000" rows="3" data-i18n-placeholder="childItemsPlaceholder" placeholder="alice@test.com&#10;bob@test.com"></textarea>
         </div>
         <button id="addSnippetBtn" type="button" class="btn primary" data-i18n="add">Add</button>
       </div>
 
       <ul id="snippetList" class="snippet-list"></ul>
-      <p id="emptySnippets" class="empty" data-i18n="emptySnippets">No custom snippets yet</p>
+      <p id="emptySnippets" class="empty" data-i18n="emptySnippets">No custom menus yet</p>
     </section>
 
     <section class="card muted">
-      <div class="section-head">
+      <button type="button" class="section-head how-to-toggle" id="howToUseToggle" aria-expanded="false" aria-controls="howToUseBody">
         <span class="index">04</span>
         <div>
           <h2 data-i18n="howToUse">How to use</h2>
           <p class="hint" data-i18n="howToUseHint">Fill data from the context menu without leaving the page.</p>
         </div>
+        <span class="how-to-chevron" aria-hidden="true"></span>
+      </button>
+      <div id="howToUseBody" class="how-to-body" hidden>
+        <ol class="tips">
+          <li data-i18n="tip1">Right-click anywhere on a page and select “0xFill - Quick Fill.”</li>
+          <li data-i18n="tip2">“One Click Fill” finds the form near where you right-clicked, checks visible checkboxes, and skips passwords, verification codes, and card numbers.</li>
+          <li data-i18n="tip3">Email addresses and phone numbers replace the entire field by default; selected text is replaced instead.</li>
+          <li data-i18n="tip4">Random text is inserted at the cursor without clearing the field.</li>
+          <li data-i18n="tip5">Custom menus start as a parent with one item per line. Expand a group to edit it or add a submenu.</li>
+          <li data-i18n="tip6">Click the extension icon anytime to open this settings page.</li>
+        </ol>
       </div>
-      <ol class="tips">
-        <li data-i18n="tip1">Right-click anywhere on a page and select “0xFill - Quick Fill.”</li>
-        <li data-i18n="tip2">“One Click Fill” finds the form near where you right-clicked, checks visible checkboxes, and skips passwords, verification codes, and card numbers.</li>
-        <li data-i18n="tip3">Email addresses and phone numbers replace the entire field by default; selected text is replaced instead.</li>
-        <li data-i18n="tip4">Random text is inserted at the cursor without clearing the field.</li>
-        <li data-i18n="tip5">Custom menus support up to three levels: parent menu → child item or submenu → nested item.</li>
-        <li data-i18n="tip6">Click the extension icon anytime to open this settings page.</li>
-        <li data-i18n="tip7">“Card Fill Form” fills billing name and test card fields in the page or nested iframe. One Click Fill still skips card numbers.</li>
-      </ol>
     </section>
   </main>
 
   <footer class="footer">
     <div class="footer-inner">
-      <span class="footer-note" data-i18n="footerNote">Save your changes to sync them with the context menu.</span>
-      <div class="footer-actions">
-        <span id="status" class="status" aria-live="polite"></span>
-        <button id="saveBtn" type="button" class="btn primary" data-i18n="saveSettings">Save settings</button>
-      </div>
+      <span class="footer-note" data-i18n="footerNote">Changes sync to the context menu immediately.</span>
     </div>
   </footer>
 

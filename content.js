@@ -34,6 +34,12 @@ if (!window.__oxfillInitialized) {
     return Boolean(el.isContentEditable);
   }
 
+  const FILL_CAP_MS = 400;
+  const FILL_MIN_MS = 80;
+  const FILL_MS_PER_CHAR = 24;
+  const FILL_GAP_MS = 40;
+  let fillGeneration = 0;
+
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (!message || !message.type) return;
 
@@ -46,9 +52,11 @@ if (!window.__oxfillInitialized) {
         sendResponse({ ok: false });
         return;
       }
-      fillElement(el, text, insertMode);
-      sendResponse({ ok: true });
-      return;
+      const isCurrent = beginFillSession();
+      fillElement(el, text, insertMode, isCurrent).then(() => {
+        sendResponse({ ok: true });
+      });
+      return true;
     }
 
     if (message.type === "fillForm") {
@@ -56,17 +64,20 @@ if (!window.__oxfillInitialized) {
         (isEditableElement(document.activeElement) && document.activeElement) ||
         document.body;
 
-      const result = fillCurrentForm(anchor, message.kit || {});
-      const filledLabel = `${result.filled} ${result.filled === 1 ? "field" : "fields"}`;
-      const skippedLabel = `${result.skipped} ${result.skipped === 1 ? "field" : "fields"}`;
-      showToast(`0xFill: Filled ${filledLabel}; skipped ${skippedLabel}.`);
-      sendResponse({ ok: true, ...result });
-      return;
+      fillCurrentForm(anchor, message.kit || {}).then((result) => {
+        const filledLabel = `${result.filled} ${result.filled === 1 ? "field" : "fields"}`;
+        const skippedLabel = `${result.skipped} ${result.skipped === 1 ? "field" : "fields"}`;
+        showToast(`0xFill: Filled ${filledLabel}. (skipped ${skippedLabel})`);
+        sendResponse({ ok: true, ...result });
+      });
+      return true;
     }
 
     if (message.type === "fillCard") {
-      const result = fillCardForm(message.kit || {});
-      sendResponse({ ok: true, ...result });
+      fillCardForm(message.kit || {}).then((result) => {
+        sendResponse({ ok: true, ...result });
+      });
+      return true;
     }
   });
 
@@ -104,20 +115,58 @@ if (!window.__oxfillInitialized) {
     el.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
-  function fillElement(el, text, insertMode = false) {
+  function beginFillSession() {
+    const generation = ++fillGeneration;
+    return () => generation === fillGeneration;
+  }
+
+  function sleep(ms) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
+
+  function fillDurationMs(length) {
+    if (length <= 1) return FILL_MIN_MS;
+    return Math.min(FILL_CAP_MS, Math.max(FILL_MIN_MS, length * FILL_MS_PER_CHAR));
+  }
+
+  function canTypewriter(el) {
+    const tag = (el.tagName || "").toLowerCase();
+    if (tag === "textarea") return true;
+    if (tag !== "input") return false;
+    const type = (el.type || "text").toLowerCase();
+    return type === "text" || type === "search" || type === "email" || type === "tel" || type === "url" || type === "";
+  }
+
+  function fillElement(el, text, insertMode = false, isCurrent = () => true) {
     const tag = (el.tagName || "").toLowerCase();
     if (tag === "input" || tag === "textarea") {
-      insertTextIntoInputOrTextarea(el, text, insertMode);
-    } else if (el.isContentEditable) {
-      insertTextIntoContentEditable(el, text, insertMode);
-    } else if (tag === "select") {
-      fillSelect(el, text);
+      return insertTextIntoInputOrTextarea(el, text, insertMode, isCurrent);
     }
+    if (el.isContentEditable) {
+      return insertTextIntoContentEditable(el, text, insertMode, isCurrent);
+    }
+    if (tag === "select") {
+      return fillSelectAnimated(el, text, isCurrent);
+    }
+    return Promise.resolve();
+  }
+
+  function commitInputValue(el, nextValue, cursor) {
+    setNativeValue(el, nextValue);
+    try {
+      if (typeof cursor === "number") el.setSelectionRange(cursor, cursor);
+    } catch (_e) {
+      // number/email 等类型可能不支持 selectionRange
+    }
+    dispatchInputEvents(el);
   }
 
   // insertMode: true = 在光标/选区处插入；false = 有选区则替换选区，否则整框覆盖
-  function insertTextIntoInputOrTextarea(el, text, insertMode = false) {
+  async function insertTextIntoInputOrTextarea(el, text, insertMode = false, isCurrent = () => true) {
     el.focus();
+    try {
+      el.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+    } catch (_e) {}
 
     const value = el.value || "";
     let start = typeof el.selectionStart === "number" ? el.selectionStart : value.length;
@@ -129,47 +178,73 @@ if (!window.__oxfillInitialized) {
       end = value.length;
     }
 
-    const nextValue = value.slice(0, start) + text + value.slice(end);
-    setNativeValue(el, nextValue);
+    const prefix = value.slice(0, start);
+    const suffix = value.slice(end);
+    const typed = String(text ?? "");
 
-    const cursor = start + text.length;
-    try {
-      el.setSelectionRange(cursor, cursor);
-    } catch (_e) {
-      // number/email 等类型可能不支持 selectionRange
+    if (!canTypewriter(el) || typed.length <= 1) {
+      commitInputValue(el, prefix + typed + suffix, start + typed.length);
+      return;
     }
 
-    dispatchInputEvents(el);
+    const stepMs = fillDurationMs(typed.length) / typed.length;
+    for (let i = 1; i <= typed.length; i += 1) {
+      if (!isCurrent() || !el.isConnected) return;
+      const nextValue = prefix + typed.slice(0, i) + suffix;
+      commitInputValue(el, nextValue, start + i);
+      if (i < typed.length) await sleep(stepMs);
+    }
   }
 
-  function insertTextIntoContentEditable(el, text, insertMode = false) {
+  async function insertTextIntoContentEditable(el, text, insertMode = false, isCurrent = () => true) {
+    if (!isCurrent()) return;
     el.focus();
+    try {
+      el.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+    } catch (_e) {}
 
+    const typed = String(text ?? "");
     const selection = window.getSelection();
     const hasRange = selection && selection.rangeCount > 0;
     const range = hasRange ? selection.getRangeAt(0) : null;
     const hasSelection = Boolean(range && !range.collapsed);
 
+    if (!insertMode && !hasSelection && typed.length > 1) {
+      const stepMs = fillDurationMs(typed.length) / typed.length;
+      for (let i = 1; i <= typed.length; i += 1) {
+        if (!isCurrent() || !el.isConnected) return;
+        el.textContent = typed.slice(0, i);
+        dispatchInputEvents(el);
+        if (i < typed.length) await sleep(stepMs);
+      }
+      return;
+    }
+
     if (!insertMode && !hasSelection) {
-      el.textContent = text;
+      el.textContent = typed;
       dispatchInputEvents(el);
       return;
     }
 
     if (!range) {
-      el.appendChild(document.createTextNode(text));
+      el.appendChild(document.createTextNode(typed));
       dispatchInputEvents(el);
       return;
     }
 
     range.deleteContents();
-    const node = document.createTextNode(text);
+    const node = document.createTextNode(typed);
     range.insertNode(node);
     range.setStartAfter(node);
     range.collapse(true);
     selection.removeAllRanges();
     selection.addRange(range);
     dispatchInputEvents(el);
+  }
+
+  async function fillSelectAnimated(el, preferred, isCurrent = () => true) {
+    if (!isCurrent()) return false;
+    return fillSelect(el, preferred);
   }
 
   function fillSelect(el, preferred) {
@@ -440,18 +515,23 @@ if (!window.__oxfillInitialized) {
     return document.body || document.documentElement;
   }
 
-  function fillCurrentForm(anchor, kit) {
+  async function fillCurrentForm(anchor, kit) {
     const root = resolveFormRoot(anchor);
     const candidates = collectCandidates(root);
+    const isCurrent = beginFillSession();
     let filled = 0;
     let skipped = 0;
 
     for (const el of candidates) {
+      if (!isCurrent()) break;
       if (!isSupportedField(el)) continue;
 
       if (isCheckboxInput(el)) {
         if (!isCheckableVisible(el) || el.disabled) continue;
-        if (checkCheckbox(el)) filled += 1;
+        if (checkCheckbox(el)) {
+          filled += 1;
+          await sleep(FILL_GAP_MS);
+        }
         continue;
       }
 
@@ -471,16 +551,17 @@ if (!window.__oxfillInitialized) {
 
       const tag = (el.tagName || "").toLowerCase();
       if (tag === "select") {
-        fillSelect(el, value);
+        await fillSelectAnimated(el, value, isCurrent);
       } else if (tag === "input" || tag === "textarea") {
-        insertTextIntoInputOrTextarea(el, value, false);
+        await insertTextIntoInputOrTextarea(el, value, false, isCurrent);
       } else if (el.isContentEditable) {
-        insertTextIntoContentEditable(el, value, false);
+        await insertTextIntoContentEditable(el, value, false, isCurrent);
       } else {
         skipped += 1;
         continue;
       }
       filled += 1;
+      await sleep(FILL_GAP_MS);
     }
 
     return { filled, skipped };
@@ -530,15 +611,17 @@ if (!window.__oxfillInitialized) {
     return null;
   }
 
-  function fillCardForm(kit) {
+  async function fillCardForm(kit) {
     const root =
       document.getElementById("payment-collect") ||
       document.querySelector(".payment-form") ||
       document.body;
     const candidates = collectCandidates(root);
+    const isCurrent = beginFillSession();
     let filled = 0;
 
     for (const el of candidates) {
+      if (!isCurrent()) break;
       if (!el || !el.isConnected || el.disabled) continue;
       if (!isVisible(el)) continue;
 
@@ -547,12 +630,13 @@ if (!window.__oxfillInitialized) {
       const value = kit[kind];
       if (!value) continue;
 
-      insertTextIntoInputOrTextarea(el, value, false);
+      await insertTextIntoInputOrTextarea(el, value, false, isCurrent);
       filled += 1;
+      await sleep(FILL_GAP_MS);
     }
 
     if (filled > 0) {
-      showToast(`0xFill: Card form filled (${filled} ${filled === 1 ? "field" : "fields"}).`);
+      showToast(`0xFill: Card form filled (${filled} ${filled === 1 ? "field" : "fields"})`);
     }
     return { filled };
   }
