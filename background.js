@@ -60,16 +60,15 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (changes.cardKit) loadSettings();
 });
 
-chrome.action.onClicked.addListener(() => {
-  chrome.runtime.openOptionsPage();
-});
-
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (!message || message.type !== "rebuildMenus") return;
-  initMenus()
-    .then(() => sendResponse({ ok: true }))
-    .catch(() => sendResponse({ ok: false }));
-  return true;
+  if (!message || !message.type) return;
+
+  if (message.type === "rebuildMenus") {
+    initMenus()
+      .then(() => sendResponse({ ok: true }))
+      .catch(() => sendResponse({ ok: false }));
+    return true;
+  }
 });
 
 async function initMenus() {

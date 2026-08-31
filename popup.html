@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>0xFill</title>
+  <script>
+    (function () {
+      var mode = "light";
+      try { mode = localStorage.getItem("oxfill-theme") || "light"; } catch (_e) {}
+      if (mode !== "light" && mode !== "dark" && mode !== "system") mode = "light";
+      var theme = mode === "system"
+        ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+        : mode;
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.dataset.themeMode = mode;
+    })();
+  </script>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <img class="logo" src="icons/icon-48.png" alt="" width="28" height="28" />
+      <div>
+        <h1>0xFill</h1>
+        <p class="subtitle" data-i18n="subtitle">Local test data · Nothing is uploaded</p>
+      </div>
+    </div>
+    <button type="button" class="icon-btn" id="openSettings" data-i18n-aria="settings" aria-label="Settings">
+      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+        <path fill="currentColor" d="M6.4 1.6h3.2l.3 1.5a4.8 4.8 0 0 1 1.3.7l1.5-.5 1.6 2.8-1.2 1c.1.4.1.8.1 1.2s0 .8-.1 1.2l1.2 1-1.6 2.8-1.5-.5a4.8 4.8 0 0 1-1.3.7l-.3 1.5H6.4l-.3-1.5a4.8 4.8 0 0 1-1.3-.7l-1.5.5L1.7 10.7l1.2-1A4.6 4.6 0 0 1 2.8 8c0-.4 0-.8.1-1.2l-1.2-1 1.6-2.8 1.5.5a4.8 4.8 0 0 1 1.3-.7l.3-1.5ZM8 6.2A1.8 1.8 0 1 0 8 9.8 1.8 1.8 0 0 0 8 6.2Z"/>
+      </svg>
+    </button>
+  </header>
+
+  <section class="intro">
+    <p class="lead" data-i18n="lead">Right-click anywhere on a page and choose 0xFill to insert test data or fill the current form in one click.</p>
+    <ul class="points">
+      <li data-i18n="point1">One Click Fill completes visible fields and skips passwords, codes, and card numbers.</li>
+      <li data-i18n="point2">Random Email, text, and phone numbers go into the field you are using.</li>
+      <li data-i18n="point3">Customize email, cards, and menus in Settings.</li>
+    </ul>
+  </section>
+
+  <footer class="footer">
+    <button type="button" class="settings-link" id="openSettingsFooter" data-i18n="openSettings">Open settings</button>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

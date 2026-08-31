@@ -39,6 +39,11 @@ if (!window.__oxfillInitialized) {
   const FILL_MS_PER_CHAR = 24;
   const FILL_GAP_MS = 40;
   let fillGeneration = 0;
+  let lastEditable = null;
+
+  document.addEventListener("focusin", (event) => {
+    if (isEditableElement(event.target)) lastEditable = event.target;
+  });
 
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (!message || !message.type) return;
@@ -62,6 +67,7 @@ if (!window.__oxfillInitialized) {
     if (message.type === "fillForm") {
       const anchor =
         (isEditableElement(document.activeElement) && document.activeElement) ||
+        (lastEditable && isEditableElement(lastEditable) && lastEditable) ||
         document.body;
 
       fillCurrentForm(anchor, message.kit || {}).then((result) => {
@@ -87,8 +93,13 @@ if (!window.__oxfillInitialized) {
 
   function takeArmedEditable() {
     if (isEditableElement(document.activeElement)) {
+      lastEditable = document.activeElement;
       return document.activeElement;
     }
+    if (lastEditable && isEditableElement(lastEditable)) {
+      return lastEditable;
+    }
+    lastEditable = null;
     return null;
   }
 

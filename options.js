@@ -63,7 +63,7 @@ const I18N = {
     tip3: "Email addresses and phone numbers replace the entire field by default; selected text is replaced instead.",
     tip4: "Random text is inserted at the cursor without clearing the field.",
     tip5: "Custom menus start as a parent with one item per line. Expand a group to edit it or add a submenu.",
-    tip6: "Click the extension icon anytime to open this settings page.",
+    tip6: "Click the extension icon for the popup. Open Settings from there anytime.",
     footerNote: "Changes sync to the context menu immediately.",
     childItems: "Child items",
     cancel: "Cancel",
@@ -99,11 +99,11 @@ const I18N = {
     themeDark: "深色",
     themeSystem: "跟随系统",
     emailTitle: "Random Email",
-    emailHint: "对应右键菜单 “Random Email”。前缀 + 6 位随机字符 + @域名",
+    emailHint: "对应右键菜单 “Random Email”，前缀 + 6 位随机字符 + @域名。",
     prefix: "前缀",
     domain: "域名",
     cardKitTitle: "Card Fill Form",
-    cardKitHint: "对应右键菜单 “Card Fill Form”。留空则回到内置默认值。会填写页面或嵌套 iframe 里的账单姓名和测试卡信息。One Click Fill 仍会跳过卡号。",
+    cardKitHint: "对应右键菜单 “Card Fill Form”，留空则回到内置默认值，会填写页面或嵌套 iframe 里的账单姓名和测试卡信息，One Click Fill 仍会跳过卡号。",
     cardFirstName: "名",
     cardLastName: "姓",
     cardFullName: "持卡人姓名",
@@ -113,14 +113,14 @@ const I18N = {
     addCard: "新增卡",
     cardMenuName: "菜单名称",
     cardMenuNamePlaceholder: "例如：Visa 测试卡",
-    extraCardHint: "这个名称和 “Card Fill Form” 平级。额外的卡都放在它下面，点开后再选卡填充。",
+    extraCardHint: "这个名称和 “Card Fill Form” 平级，额外的卡都放在它下面，点开后再选卡填充。",
     extraCardGroupName: "分组名称",
     extraCardGroupPlaceholder: "例如：测试卡",
     extraCardGroupDefault: "测试卡",
     extraCardNeedName: "填写菜单名称后，才会出现在右键菜单里。",
     needCardGroupName: "请填写额外卡的分组名称。",
     snippetsTitle: "自定义菜单",
-    snippetsHint: "先写父菜单名，再每行一条。点开一组可编辑，或添加子菜单作为第三层。",
+    snippetsHint: "先写父菜单名，再每行一条；点开一组可编辑，或添加子菜单作为第三层。",
     parentMenuName: "父菜单名",
     parentMenuPlaceholder: "例如：测试账号",
     childItemsLabel: "子选项（每行一条）",
@@ -136,8 +136,8 @@ const I18N = {
     tip2: "“One Click Fill” 会按右键位置定位表单，勾选可见复选框，并跳过密码、验证码和卡号。",
     tip3: "邮箱和电话号码默认覆盖整个输入框；如已选中文字，则只替换选区。",
     tip4: "随机文案会插入到光标处，不会清空整个输入框。",
-    tip5: "自定义菜单默认是父菜单 + 每行一条。展开后可编辑，或添加子菜单。",
-    tip6: "随时点击扩展图标即可打开本设置页。",
+    tip5: "自定义菜单默认是父菜单 + 每行一条，展开后可编辑，或添加子菜单。",
+    tip6: "点击扩展图标打开快捷弹窗，再从弹窗进入本设置页。",
     footerNote: "更改会立即同步到右键菜单。",
     childItems: "子选项",
     cancel: "取消",
@@ -202,14 +202,25 @@ let expandedExtraCardId = null;
 let persistDirty = false;
 let persistChain = Promise.resolve();
 const THEME_MODES = ["light", "dark", "system"];
-let currentThemeMode = "system";
+let currentThemeMode = "light";
 const systemThemeMql = window.matchMedia("(prefers-color-scheme: dark)");
 
 init();
 
 function detectBrowserLanguage() {
-  const lang = String(navigator.language || "en").toLowerCase();
-  return lang.startsWith("zh") ? "zh" : "en";
+  let raw = "";
+  try {
+    raw = chrome.i18n.getUILanguage();
+  } catch (_e) {}
+  if (!raw) {
+    raw = (navigator.languages && navigator.languages[0]) || navigator.language || "";
+  }
+  const lang = String(raw).toLowerCase().replace(/_/g, "-");
+  return lang === "zh" || lang.startsWith("zh-") ? "zh" : "en";
+}
+
+function resolveUiLanguage(stored) {
+  return stored === "zh" || stored === "en" ? stored : detectBrowserLanguage();
 }
 
 function t(key) {
@@ -240,7 +251,7 @@ function resolvedTheme(mode) {
 }
 
 function applyTheme(mode) {
-  currentThemeMode = THEME_MODES.includes(mode) ? mode : "system";
+  currentThemeMode = THEME_MODES.includes(mode) ? mode : "light";
   const theme = resolvedTheme(currentThemeMode);
   document.documentElement.dataset.theme = theme;
   document.documentElement.dataset.themeMode = currentThemeMode;
@@ -315,11 +326,9 @@ async function init() {
   const stored = await chrome.storage.sync.get({
     ...DEFAULT_SETTINGS,
     uiLanguage: null,
-    uiTheme: "system"
+    uiTheme: "light"
   });
-  currentLang = stored.uiLanguage === "zh" || stored.uiLanguage === "en"
-    ? stored.uiLanguage
-    : detectBrowserLanguage();
+  currentLang = resolveUiLanguage(stored.uiLanguage);
 
   emailPrefixInput.value = sanitizeEmailPrefix(stored.emailPrefix) || DEFAULT_SETTINGS.emailPrefix;
   emailDomainInput.value = normalizeEmailDomain(stored.emailDomain);
@@ -327,7 +336,7 @@ async function init() {
   extraCardKits = parseExtraCardKits(stored.extraCardKits);
   extraCardGroupTitleInput.value = String(stored.extraCardGroupTitle || "");
   snippets = normalizeSnippets(stored.customSnippets);
-  applyTheme(stored.uiTheme === "light" || stored.uiTheme === "dark" ? stored.uiTheme : "system");
+  applyTheme(THEME_MODES.includes(stored.uiTheme) ? stored.uiTheme : "light");
 
   applyStaticI18n();
   renderPreview();

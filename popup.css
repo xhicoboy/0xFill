@@ -1,0 +1,163 @@
+:root,
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f4f7fb;
+  --text: #1a2430;
+  --muted: #5c6e82;
+  --line: rgba(30, 55, 80, 0.12);
+  --primary: #12956e;
+  --primary-ink: #ffffff;
+  --control-bg: #ffffff;
+  --glow: rgba(18, 149, 110, 0.16);
+  --accent-soft: rgba(18, 149, 110, 0.12);
+  --focus-border: rgba(18, 149, 110, 0.5);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0b1118;
+  --text: #e8eef6;
+  --muted: #8b9bb0;
+  --line: rgba(120, 160, 190, 0.16);
+  --primary: #3ee0b0;
+  --primary-ink: #062018;
+  --control-bg: #0c131b;
+  --glow: rgba(62, 224, 176, 0.18);
+  --accent-soft: rgba(62, 224, 176, 0.12);
+  --focus-border: rgba(62, 224, 176, 0.55);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 320px;
+  margin: 0;
+}
+
+body {
+  color: var(--text);
+  background: var(--bg);
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 13px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 12px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.logo {
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--line), 0 0 16px var(--glow);
+}
+
+h1 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--control-bg);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  color: var(--primary);
+  border-color: var(--focus-border);
+}
+
+.icon-btn:focus-visible,
+.settings-link:focus-visible {
+  outline: none;
+  border-color: var(--focus-border);
+  box-shadow: 0 0 0 3px var(--glow);
+}
+
+.intro {
+  padding: 12px 12px 4px;
+}
+
+.lead {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.points {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.points li {
+  position: relative;
+  margin: 0;
+  padding: 7px 0 7px 14px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.points li::before {
+  content: "";
+  position: absolute;
+  top: 13px;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.footer {
+  padding: 8px 12px 12px;
+}
+
+.settings-link {
+  width: 100%;
+  height: 34px;
+  border: none;
+  border-radius: 9px;
+  background: var(--primary);
+  color: var(--primary-ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings-link:hover {
+  filter: brightness(1.05);
+}
