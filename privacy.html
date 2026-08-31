@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy · 0xFill</title>
+  <meta name="description" content="Privacy policy for the 0xFill - Quick Fill browser extension. Test data is generated locally. Nothing is uploaded." />
+  <link rel="icon" href="icons/icon-48.png" type="image/png" />
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: rgba(255, 255, 255, 0.88);
+      --text: #1a2430;
+      --muted: #5c6e82;
+      --line: rgba(30, 55, 80, 0.12);
+      --primary: #12956e;
+      --glow: rgba(18, 149, 110, 0.16);
+      --control-bg: #ffffff;
+      --footer-bg: rgba(244, 247, 251, 0.92);
+      --backdrop-top: #eef4f9;
+      --glow-spot: rgba(18, 149, 110, 0.1);
+      --glow-spot-2: rgba(56, 140, 255, 0.08);
+      --grid-line: rgba(80, 110, 140, 0.08);
+      --accent-soft: rgba(18, 149, 110, 0.12);
+      --card-shadow: 0 12px 40px rgba(20, 40, 60, 0.08);
+      --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235c6e82' d='M1.2 1.3L6 6.1l4.8-4.8'/%3E%3C/svg%3E");
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+    }
+
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(900px 420px at 12% -10%, var(--glow-spot), transparent 55%),
+        radial-gradient(700px 360px at 100% 0%, var(--glow-spot-2), transparent 50%),
+        linear-gradient(180deg, var(--backdrop-top) 0%, var(--bg) 36%);
+    }
+
+    .backdrop::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.35;
+      background-image:
+        linear-gradient(var(--grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(180deg, #000 0%, transparent 78%);
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: min(760px, calc(100% - 32px));
+      margin: 36px auto 80px;
+    }
+
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      border-radius: 10px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .language-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 4px;
+      flex-shrink: 0;
+    }
+
+    .language-selector label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .language-selector select {
+      height: 36px;
+      min-width: 118px;
+      padding: 0 32px 0 12px;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--control-bg) var(--select-arrow) no-repeat right 12px center;
+      outline: none;
+      appearance: none;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .language-selector select:focus {
+      border-color: rgba(18, 149, 110, 0.5);
+      box-shadow: 0 0 0 3px var(--glow);
+    }
+
+    .card {
+      margin-bottom: 14px;
+      padding: 22px 24px 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      box-shadow: var(--card-shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .section-head {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .index {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 28px;
+      text-align: center;
+    }
+
+    h2 {
+      margin: 0 0 2px;
+      font-size: 16px;
+      font-weight: 650;
+    }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .body {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .body p { margin: 0 0 12px; }
+    .body p:last-child { margin-bottom: 0; }
+
+    .body ul {
+      margin: 0 0 12px;
+      padding-left: 20px;
+    }
+
+    .body ul:last-child { margin-bottom: 0; }
+
+    .body li { margin: 0 0 6px; }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    .footer {
+      position: relative;
+      z-index: 1;
+      padding: 18px 16px 28px;
+      background: var(--footer-bg);
+    }
+
+    .footer-inner {
+      width: min(760px, calc(100% - 32px));
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 640px) {
+      .header { flex-direction: column; }
+      .card { padding: 18px 16px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true"></div>
+  <main class="page">
+    <header class="header">
+      <div class="brand">
+        <img class="logo" src="icons/icon-48.png" alt="0xFill" width="40" height="40" />
+        <div>
+          <div class="brand-row">
+            <h1>0xFill</h1>
+            <span class="badge" data-i18n="badge">Privacy Policy</span>
+          </div>
+          <p class="subtitle" data-i18n="subtitle">Test data generated locally · Nothing is uploaded</p>
+        </div>
+      </div>
+      <div class="language-selector">
+        <label for="language" data-i18n="languageLabel">Language</label>
+        <select id="language" aria-label="Language">
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+        </select>
+      </div>
+    </header>
+
+    <section class="card">
+      <p class="body" data-i18n-html="intro"></p>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <span class="index">01</span>
+        <div>
+          <h2 data-i18n="s1Title">What the Extension does</h2>
+          <p class="hint" data-i18n="s1Hint">A local test-data helper, not a data collection product.</p>
+        </div>
+      </div>
+      <div class="body" data-i18n-html="s1Body"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <span class="index">02</span>
+        <div>
+          <h2 data-i18n="s2Title">Information we collect</h2>
+          <p class="hint" data-i18n="s2Hint">The Extension does not collect personal data.</p>
+        </div>
+      </div>
+      <div class="body" data-i18n-html="s2Body"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <span class="index">03</span>
+        <div>
+          <h2 data-i18n="s3Title">Local storage</h2>
+          <p class="hint" data-i18n="s3Hint">Optional settings stay in your browser profile.</p>
+        </div>
+      </div>
+      <div class="body" data-i18n-html="s3Body"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <span class="index">04</span>
+        <div>
+          <h2 data-i18n="s4Title">How data is used</h2>
+          <p class="hint" data-i18n="s4Hint">Only to provide the fill feature you trigger.</p>
+        </div>
+      </div>
+      <div class="body" data-i18n-html="s4Body"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <span class="index">05</span>
+        <div>
+          <h2 data-i18n="s5Title">Sharing and selling</h2>
+          <p class="hint" data-i18n="s5Hint">We do not share, sell, or rent user data.</p>
+        </div>
+      </div>
+      <div class="body" data-i18n-html="s5Body"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <span class="index">06</span>
+        <div>
+          <h2 data-i18n="s6Title">Permissions</h2>
+          <p class="hint" data-i18n="s6Hint">Requested only for the fill feature.</p>
+        </div>
+      </div>
+      <div class="body" data-i18n-html="s6Body"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <span class="index">07</span>
+        <div>
+          <h2 data-i18n="s7Title">Third parties</h2>
+          <p class="hint" data-i18n="s7Hint">No tracking, ads, or analytics SDKs.</p>
+        </div>
+      </div>
+      <div class="body" data-i18n-html="s7Body"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <span class="index">08</span>
+        <div>
+          <h2 data-i18n="s8Title">Children’s privacy</h2>
+          <p class="hint" data-i18n="s8Hint">Not directed to children under 13.</p>
+        </div>
+      </div>
+      <div class="body" data-i18n-html="s8Body"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <span class="index">09</span>
+        <div>
+          <h2 data-i18n="s9Title">Changes</h2>
+          <p class="hint" data-i18n="s9Hint">Updates will be posted on this page.</p>
+        </div>
+      </div>
+      <div class="body" data-i18n-html="s9Body"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <span class="index">10</span>
+        <div>
+          <h2 data-i18n="s10Title">Contact</h2>
+          <p class="hint" data-i18n="s10Hint">Questions about privacy or the Extension.</p>
+        </div>
+      </div>
+      <div class="body" data-i18n-html="s10Body"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner" data-i18n="footer">Last updated: August 31, 2026 · 0xFill - Quick Fill by hico</div>
+  </footer>
+
+  <script>
+    var COPY = {
+      en: {
+        badge: "Privacy Policy",
+        subtitle: "Test data generated locally · Nothing is uploaded",
+        languageLabel: "Language",
+        intro: "<p>This privacy policy applies to the <strong>0xFill - Quick Fill</strong> browser extension (the “Extension”) created by hico (the “Service Provider”). The Extension is provided as a free service and is intended for use “AS IS”.</p><p>Last updated: <strong>August 31, 2026</strong>.</p>",
+        s1Title: "What the Extension does",
+        s1Hint: "A local test-data helper, not a data collection product.",
+        s1Body: "<p>0xFill helps you insert locally generated test data into editable fields on web pages through the browser context menu. This includes random emails, sample phone numbers, random text, test payment-form values you configure, and custom snippets.</p><p>Fill actions run in your browser on the page where you choose a 0xFill menu item. The Extension does not operate as a cloud service and does not require an account with the Service Provider.</p>",
+        s2Title: "Information we collect",
+        s2Hint: "The Extension does not collect personal data.",
+        s2Body: "<p>The Extension <strong>does not collect, store remotely, transmit, or sell</strong> personal data.</p><ul><li>It does not collect IP addresses, browsing history, cookies from websites you visit, or the contents of forms except to write the test values you asked to insert.</li><li>It does not use Artificial Intelligence (AI) to process your data.</li><li>It does not use third-party tracking, advertising, or analytics SDKs.</li><li>Generated test values are not uploaded to the Service Provider.</li></ul>",
+        s3Title: "Local storage",
+        s3Hint: "Optional settings stay in your browser profile.",
+        s3Body: "<p>If you open Settings, optional values you enter (for example email prefix and domain, test-card fields, custom menus, language, and theme) are saved with the browser’s <code>chrome.storage.sync</code> API so they can sync with your browser profile.</p><p>This data stays in your browser account or local storage. It is not sent to servers operated by the Service Provider. You can remove it by clearing the Extension’s data or uninstalling the Extension.</p>",
+        s4Title: "How data is used",
+        s4Hint: "Only to provide the fill feature you trigger.",
+        s4Body: "<p>Local settings are used only to build the context menu and to generate or insert the test values you select. Page access is used only at the moment you right-click and choose a 0xFill action, so the Extension can write into the fields you targeted, including nested frames when needed for a payment form.</p><p>The Extension does not use this access to monitor your browsing or to read sites in the background.</p>",
+        s5Title: "Sharing and selling",
+        s5Hint: "We do not share, sell, or rent user data.",
+        s5Body: "<p>The Service Provider does not receive user data from the Extension, and therefore does not share, sell, rent, or transfer it to third parties. There is no advertising network, analytics vendor, or affiliate program attached to the Extension.</p>",
+        s6Title: "Permissions",
+        s6Hint: "Requested only for the fill feature.",
+        s6Body: "<p>The Extension requests permissions required for its core feature:</p><ul><li><strong>contextMenus</strong> — show 0xFill items in the right-click menu.</li><li><strong>storage</strong> — save and read your optional settings in the browser.</li><li><strong>scripting</strong> and <strong>activeTab</strong> — run the fill script in the tab you are using after you choose a menu item.</li><li><strong>Host permission (all sites)</strong> — insert test data on development, staging, and production sites you choose, including nested iframes. This is not used to scan the web or collect page content.</li></ul><p>These permissions are used only to provide the fill feature you trigger.</p>",
+        s7Title: "Third parties",
+        s7Hint: "No tracking, ads, or analytics SDKs.",
+        s7Body: "<p>The Extension does not include third-party analytics, advertising, crash-reporting, or social SDKs. It does not load remote code from the Service Provider or other servers to provide its features.</p>",
+        s8Title: "Children’s privacy",
+        s8Hint: "Not directed to children under 13.",
+        s8Body: "<p>The Extension is not directed to children under 13. The Service Provider does not knowingly collect personal information from children.</p>",
+        s9Title: "Changes",
+        s9Hint: "Updates will be posted on this page.",
+        s9Body: "<p>This Privacy Policy may be updated from time to time. Changes will be posted by updating this page and the “Last updated” date. Continued use of the Extension after updates means you accept the revised policy.</p>",
+        s10Title: "Contact",
+        s10Hint: "Questions about privacy or the Extension.",
+        s10Body: "<p>If you have questions about privacy or this Extension, contact: <a href=\"mailto:xhicoboy@gmail.com\">xhicoboy@gmail.com</a>.</p>",
+        footer: "Last updated: August 31, 2026 · 0xFill - Quick Fill by hico"
+      },
+      zh: {
+        badge: "隐私权政策",
+        subtitle: "测试数据本地生成 · 不会上传任何内容",
+        languageLabel: "语言",
+        intro: "<p>本隐私权政策适用于 hico（“服务提供方”）开发的浏览器扩展程序 <strong>0xFill - Quick Fill</strong>（“本扩展”）。本扩展为免费服务，按“现状”提供。</p><p>最近更新日期：<strong>2026 年 8 月 31 日</strong>。</p>",
+        s1Title: "本扩展的用途",
+        s1Hint: "本地测试数据工具，不是数据采集产品。",
+        s1Body: "<p>0xFill 通过浏览器右键菜单，将本地生成的测试数据填入网页可编辑字段，包括随机邮箱、示例电话、随机文本、你在设置中配置的测试支付信息，以及自定义片段。</p><p>填写动作在你选择 0xFill 菜单项时，于当前页面的浏览器内完成。本扩展不是云服务，也不需要向服务提供方注册账号。</p>",
+        s2Title: "我们收集哪些信息",
+        s2Hint: "本扩展不收集个人数据。",
+        s2Body: "<p>本扩展<strong>不收集、不远程存储、不传输、不出售</strong>个人数据。</p><ul><li>不收集 IP 地址、浏览历史、你访问网站的 Cookie，也不会读取表单内容（除非是为了写入你要求插入的测试值）。</li><li>不使用人工智能（AI）处理你的数据。</li><li>不使用第三方跟踪、广告或分析 SDK。</li><li>生成的测试值不会上传至服务提供方。</li></ul>",
+        s3Title: "本地存储",
+        s3Hint: "可选设置保存在你的浏览器配置中。",
+        s3Body: "<p>若你打开设置页并填写可选项（例如邮箱前缀与域名、测试卡信息、自定义菜单、语言和主题），这些内容会通过浏览器的 <code>chrome.storage.sync</code> API 保存，以便与你的浏览器配置同步。</p><p>上述数据留在你的浏览器账号或本地存储中，不会发送到服务提供方的服务器。清除本扩展数据或卸载本扩展即可删除这些设置。</p>",
+        s4Title: "数据如何使用",
+        s4Hint: "仅用于你触发的填写功能。",
+        s4Body: "<p>本地设置仅用于生成右键菜单，以及生成或插入你选择的测试值。页面访问仅发生在你右键并选择 0xFill 操作的那一刻，以便将内容写入你指定的字段（支付表单如有嵌套 iframe，也会写入相应框架）。</p><p>本扩展不会用这些权限监控你的浏览，也不会在后台读取网站内容。</p>",
+        s5Title: "共享与出售",
+        s5Hint: "我们不共享、出售或出租用户数据。",
+        s5Body: "<p>服务提供方不会从本扩展接收用户数据，因此也不会向第三方共享、出售、出租或转移此类数据。本扩展未接入广告网络、分析服务商或联盟推广。</p>",
+        s6Title: "权限",
+        s6Hint: "仅为本扩展的填写功能申请。",
+        s6Body: "<p>本扩展申请的权限仅用于核心填写功能：</p><ul><li><strong>contextMenus</strong>：在右键菜单中显示 0xFill 项。</li><li><strong>storage</strong>：在浏览器中保存和读取你的可选设置。</li><li><strong>scripting</strong> 与 <strong>activeTab</strong>：在你选择菜单项后，于当前标签页运行填写脚本。</li><li><strong>主机权限（所有网站）</strong>：在你选择的开发、预发或生产站点上插入测试数据，包含嵌套 iframe。不会用于扫描网页或收集页面内容。</li></ul><p>上述权限仅用于提供你主动触发的填写功能。</p>",
+        s7Title: "第三方",
+        s7Hint: "无跟踪、广告或分析 SDK。",
+        s7Body: "<p>本扩展不包含第三方分析、广告、崩溃上报或社交 SDK，也不会从服务提供方或其他服务器加载远程代码来提供功能。</p>",
+        s8Title: "儿童隐私",
+        s8Hint: "不面向 13 岁以下儿童。",
+        s8Body: "<p>本扩展不面向 13 岁以下儿童。服务提供方不会故意收集儿童的个人信息。</p>",
+        s9Title: "政策变更",
+        s9Hint: "更新将发布在本页面。",
+        s9Body: "<p>本隐私权政策可能不时更新。变更将通过更新本页面及“最近更新日期”公布。在更新后继续使用本扩展，即表示你接受修订后的政策。</p>",
+        s10Title: "联系我们",
+        s10Hint: "关于隐私或本扩展的问题。",
+        s10Body: "<p>如对隐私或本扩展有疑问，请联系：<a href=\"mailto:xhicoboy@gmail.com\">xhicoboy@gmail.com</a>。</p>",
+        footer: "最近更新：2026 年 8 月 31 日 · 0xFill - Quick Fill by hico"
+      }
+    };
+
+    function applyLang(lang) {
+      var dict = COPY[lang] || COPY.en;
+      document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+      document.querySelectorAll("[data-i18n]").forEach(function (el) {
+        var key = el.getAttribute("data-i18n");
+        if (dict[key]) el.textContent = dict[key];
+      });
+      document.querySelectorAll("[data-i18n-html]").forEach(function (el) {
+        var key = el.getAttribute("data-i18n-html");
+        if (dict[key]) el.innerHTML = dict[key];
+      });
+    }
+
+    var select = document.getElementById("language");
+    var initial = "en";
+    try {
+      var saved = localStorage.getItem("0xfill-privacy-lang");
+      if (saved === "zh" || saved === "en") initial = saved;
+    } catch (_e) {}
+    select.value = initial;
+    applyLang(initial);
+    select.addEventListener("change", function () {
+      var lang = select.value === "zh" ? "zh" : "en";
+      try { localStorage.setItem("0xfill-privacy-lang", lang); } catch (_e) {}
+      applyLang(lang);
+    });
+  </script>
+</body>
+</html>
